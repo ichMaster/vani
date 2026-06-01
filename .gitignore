@@ -222,3 +222,6 @@ __marimo__/
 
 # Office temp/lock files
 ~$*
+
+# Vani local state
+.vani_state/

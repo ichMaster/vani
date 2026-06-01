@@ -1,6 +1,6 @@
 # Data Schemas
 
-JSON Schema (draft 2020-12) for Vani's data contracts. These are the authoritative shapes referenced by architecture §9 (Data Contracts and Schemas) and specification §13 (State Model). Both `json_store` and `mongo_store` serialize the same schemas; the runtime models in `voice_companion/contracts/` are the source of truth and these files are their export.
+JSON Schema (draft 2020-12) for Vani's data contracts. These are the authoritative shapes referenced by architecture §9 (Data Contracts and Schemas) and specification §13 (State Model). Both `json_store` and `mongo_store` serialize the same schemas; the runtime models in `src/contracts/` are the source of truth and these files are their export.
 
 ## Conventions
 

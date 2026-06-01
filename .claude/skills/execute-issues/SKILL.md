@@ -62,7 +62,7 @@ Read the full issue description from the phase issues file (the detailed section
 
 Execute the tasks described in the issue. Follow the project conventions in `CLAUDE.md` and the design documents under `specification/`. Key rules:
 
-- **Source layout:** implement under the `voice_companion/` package, placing code in the module that owns the concern per the architecture doc (`core/`, `astro/`, `planner/`, `facets/`, `delivery/`, `line/`, `portrait/`, `background/`, `guardian/`, `llm/`, `state/`, `io/`, `server/`, `device/`, `telemetry/`, `config/`, `tui/`).
+- **Source layout:** implement under the `src/` package, placing code in the module that owns the concern per the architecture doc (`core/`, `astro/`, `planner/`, `facets/`, `delivery/`, `line/`, `portrait/`, `background/`, `guardian/`, `llm/`, `state/`, `io/`, `server/`, `device/`, `telemetry/`, `config/`, `tui/`).
 - **Spec is authoritative:** the master specification (v1.8) defines the "what", the architecture doc the "how", the roadmap the "when". When behavior is unclear, defer to the spec rather than improvising; if the spec is silent, ask the user.
 - **State behind the repository:** all state access goes through the `state/repository.py` interface. No personality layer may know whether JSON or Mongo sits beneath it.
 - **The Guardian is synchronous; the background pass is not.** Never move a safety check off the synchronous path. The async background pass affects subsequent turns only.
@@ -227,7 +227,7 @@ After all issues are processed (or on stop), generate:
 **Status:** completed
 **Commit:** a1b2c3d
 **Files changed:**
-- `voice_companion/planner/perception.py` (new)
+- `src/planner/perception.py` (new)
 
 **Validation:**
 - [x] Syntax/import: pass

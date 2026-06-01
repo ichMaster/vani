@@ -48,11 +48,11 @@ VANI-002 + VANI-004 --> VANI-005 (engine)
 ### VANI-001 — Project scaffold and tooling
 
 **Description:**
-Stand up the `voice_companion/` Python project so every other issue has a place to live. This is the base of v1 P0.
+Stand up the `src/` Python project so every other issue has a place to live. This is the base of v1 P0.
 
 **What needs to be done:**
 - Create the repo's Python project: a `.venv` virtualenv and `pyproject.toml` (Python 3.11+, dependencies: `anthropic`, `textual`; dev extra `[dev]`: `pytest`, `pytest-asyncio`, `ruff`).
-- Create the `voice_companion/` package with the module layout from architecture §2 (`app/`, `core/`, `planner/`, `llm/`, `state/`, `contracts/`, `engine.py`, `telemetry/`, `config/`, `tui/`, plus empty placeholders for later modules).
+- Create the `src/` package with the module layout from architecture §2 (`app/`, `core/`, `planner/`, `llm/`, `state/`, `contracts/`, `engine.py`, `telemetry/`, `config/`, `tui/`, plus empty placeholders for later modules).
 - Create `tests/` (unit + a `replay/` area for the headless harness, VANI-010).
 - Configure `ruff` (lint + format) and `pytest` in `pyproject.toml`.
 - Add `README`/`.env.example` and document setup: `python -m venv .venv && . .venv/bin/activate && pip install -e ".[dev]"`.
@@ -64,7 +64,7 @@ A clean, installable skeleton: the package imports, `ruff` and `pytest` run (no 
 
 **Acceptance criteria:**
 - [ ] `python -m venv .venv && pip install -e ".[dev]"` exits 0
-- [ ] `import voice_companion` and all sub-packages import without error
+- [ ] `import src` and all sub-packages import without error
 - [ ] `ruff check .` and `pytest` both run (pytest reports 0 tests, exit 0)
 - [ ] Directory layout matches the Solution Structure in `architecture-v0.1.en.md` §2
 

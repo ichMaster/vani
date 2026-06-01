@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **specification-only repository**. There is no implementation code yet — only design documents under `specification/`. The `.gitignore` is Python-oriented because the system is planned to be built in Python (see roadmap), but no source tree, package config, build, lint, or test tooling exists. Do not invent build/test commands; there are none until v1 P0 scaffolding is created.
 
-The first implementation task (roadmap v1 P0) is to scaffold the Python project under a `voice_companion/` package with the module layout defined in the architecture doc, choose dependency/packaging/lint tooling, and stand up the `Repository` interface + `json_store`.
+The first implementation task (roadmap v1 P0) is to scaffold the Python project under a `src/` package with the module layout defined in the architecture doc, choose dependency/packaging/lint tooling, and stand up the `Repository` interface + `json_store`.
 
 ## What Vani is
 
@@ -17,7 +17,7 @@ A single, coherent "living personality" voice companion. One personality, not a 
 `specification/` holds the **English** documents in a category-first taxonomy (`architecture/`, `requirements/`, `roadmap/`, `missions/`). The original **Ukrainian** documents live flat under `docs/requirements_ukr/` at the repo root. The three core documents form a deliberate "what / how / when" triad — keep them consistent when editing:
 
 - `specification/requirements/specification-v1.8.en.md` — **the "what."** Authoritative master spec. Defines the four personality layers, the per-turn planner pipeline, facets, conversation line, portrait, confidence, Guardian, state model (§13), and config knobs (§18). Start here.
-- `specification/architecture/architecture-v0.1.en.md` — **the "how."** The `voice_companion/` module layout (§2), module responsibilities (§3), state documents, and tech stack by phase (§8).
+- `specification/architecture/architecture-v0.1.en.md` — **the "how."** The `src/` module layout (§2), module responsibilities (§3), state documents, and tech stack by phase (§8).
 - `specification/roadmap/roadmap-v0.2.en.md` — **the "when."** Three delivery versions — v1 (phases P0–P4), v2 (P1–P6), v3 (P1–P3) — each phase with goal/scope/modules/tasks/definition-of-done, plus six review-driven refinements mapped to phases (§3). Cross-references use `vN Pk` (e.g. `v2 P4`).
 
 Each English doc has a Ukrainian original under `docs/requirements_ukr/` (`.uk.md` / `.uk.docx`). `specification/missions/vani-article.en.md` is a longer research-style article on the overall concept (the academic framing, scientific-grounding table, and six peer reviews), translated from the Ukrainian original at `docs/requirements_ukr/vani-article.uk.md`. **When changing a spec, update both the English (`specification/`) and Ukrainian (`docs/requirements_ukr/`) versions** so they stay in sync, and bump the version number in the header. English is treated as authoritative.

@@ -118,5 +118,5 @@ Released v<version>
 - **Clean tree first.** If there are uncommitted changes, ask the user before proceeding.
 - **Annotated tags only.** Always use `git tag -a`, never lightweight tags.
 - **No emoji** in commit messages or release notes.
-- **Don't modify source files.** This skill only touches version metadata, not application code under `voice_companion/`.
+- **Don't modify source files.** This skill only touches version metadata, not application code under `src/`.
 - **Confirm changelog.** If auto-generating changelog from commits, show it to the user before committing.

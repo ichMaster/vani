@@ -23,7 +23,7 @@ The brain (personality layers, planner, background pass, Guardian) is the same a
 
 ```
 vani/                      # repo root; .venv/ virtualenv, pyproject.toml (deps + pytest/ruff config)
-  voice_companion/
+  src/
     app/
       tui_main.py          # entry point Versions 1-2, v3 P1 (local TUI)
       server_main.py       # entry point v3 P2+ (server)

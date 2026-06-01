@@ -12,6 +12,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from src.contracts.documents import Session, Turn
+from src.guardian.guardrail import Guardian, MinimalGuardian
 from src.llm.client import LLMClient
 from src.state.repository import Repository
 
@@ -29,11 +30,13 @@ class Engine:
         *,
         system_prompt: str = DEFAULT_SYSTEM,
         user_id: str = "local",
+        guardian: Guardian | None = None,
     ) -> None:
         self._repo = repository
         self._llm = llm
         self._system = system_prompt
         self._user_id = user_id
+        self._guardian = guardian or MinimalGuardian()
 
     def _load_session(self, session_id: str) -> Session:
         raw = self._repo.load("sessions", session_id)
@@ -55,20 +58,23 @@ class Engine:
         *,
         on_delta: Callable[[str], None] | None = None,
     ) -> str:
-        """Run one turn: append the user message, generate a reply, persist, return it.
+        """Run one turn: append the user message, generate a reply, gate it, persist, return it.
 
-        `on_delta` (optional) receives streamed reply chunks for live rendering.
+        The model output is buffered and passed through the synchronous Guardian
+        *before* anything reaches the caller — safety is never checked after the
+        fact. `on_delta` (optional) receives the guarded reply for rendering.
         """
         session = self._load_session(session_id)
         session.turns.append(Turn(turn_id=f"t{len(session.turns)}", role="user", text=user_input))
 
         messages = [{"role": t.role, "content": t.text} for t in session.turns]
-        completion = await self._llm.complete(
-            system=self._system, messages=messages, tier="opus", on_delta=on_delta
-        )
+        completion = await self._llm.complete(system=self._system, messages=messages, tier="opus")
 
-        session.turns.append(
-            Turn(turn_id=f"t{len(session.turns)}", role="assistant", text=completion.text)
-        )
+        verdict = self._guardian.check(completion.text)
+        reply = verdict.output
+        if on_delta is not None:
+            on_delta(reply)
+
+        session.turns.append(Turn(turn_id=f"t{len(session.turns)}", role="assistant", text=reply))
         self._save_session(session)
-        return completion.text
+        return reply

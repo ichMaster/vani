@@ -2,7 +2,7 @@
 
 **A living-personality voice companion.** Vani is designed not as a "query → response" function but as a single, coherent presence: it is born to fit the user at onboarding, has a stable character, wakes with a daily mood, adapts its manner to the user, carries a running conversation, and builds a model of the person over time — yet always speaks as one voice.
 
-> **Status: early build (v0.1.0).** Version 0, Phase 0 — the local text-chat skeleton — is implemented under `src/`: a transport-agnostic brain (`engine`), the repository + JSON store, versioned data contracts, a streaming Anthropic client, a synchronous guardrail, a placeholder canon, telemetry, and a Textual TUI. The remaining phases (planner, personality layers, voice, server, device) are still design documents — see the [roadmap](specification/roadmap/roadmap-v0.2.en.md).
+> **Status: early build (v0.2.0).** Version 0, Phases 0–1 are implemented under `src/`: the local text-chat skeleton (transport-agnostic `engine`, repository + JSON store, versioned contracts, streaming Anthropic client, synchronous guardrail, placeholder canon, telemetry, Textual TUI) **plus the planner pipeline** — Haiku perception, deterministic simple/deep routing, dispatch with retry/fallback, prompt-prefix caching, per-turn telemetry, and a live TUI token/cost meter. The remaining phases (conversation line, portrait, background pass; then personality layers, voice, server, device) are still design documents — see the [roadmap](specification/roadmap/roadmap-v0.2.en.md).
 
 ## Getting started
 

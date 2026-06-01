@@ -1,3 +1,17 @@
+Version 0.2.0 (2026-06-01)
+---------------------------
+Version 0, Phase 1 — Planner Skeleton and Tiers. Adds the deterministic
+per-turn pipeline on top of the P0 skeleton.
+
+- VANI-011 Pipeline contracts: PerceptionResult and TurnPlan (serializable, schema-validated).
+- VANI-012 Perception step: one Haiku call classifies the message (topic/intent + confidence).
+- VANI-013 Deterministic router: simple -> Haiku, deep -> Opus, with config-driven thresholds.
+- VANI-014 Dispatch and post-update: perception + routing wired into the gated turn loop; route recorded.
+- VANI-015 LLM failure handling: retry + filler on transient errors, honest fallback, consistent state.
+- VANI-016 Prompt-prefix assembly: cached system prefix + fresh suffix (prompt caching).
+- VANI-017 Per-turn telemetry: route, latencies, per-tier token usage; redacted, schema-conformant.
+- VANI-018 TUI token/cost meter: per-turn + cumulative tokens and estimated cost in the status line.
+
 Version 0.1.0 (2026-06-01)
 ---------------------------
 - Load ANTHROPIC_API_KEY from a local .env (precedence: env var > .env > default).

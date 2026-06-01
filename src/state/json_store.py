@@ -9,10 +9,14 @@ encrypted at rest (refinement #1); it is None until wired up.
 from __future__ import annotations
 
 import json
+from collections.abc import Callable
 from pathlib import Path
 from typing import Protocol
 
 from src.state.repository import Document, Repository
+
+# A migrator upgrades a raw document to the current schema_version on read.
+Migrator = Callable[[str, Document], Document]
 
 
 class Cipher(Protocol):
@@ -26,10 +30,15 @@ class JsonStore(Repository):
     """A Repository backed by local JSON files."""
 
     def __init__(
-        self, state_dir: str | Path = ".vani_state", *, cipher: Cipher | None = None
+        self,
+        state_dir: str | Path = ".vani_state",
+        *,
+        cipher: Cipher | None = None,
+        migrator: Migrator | None = None,
     ) -> None:
         self._root = Path(state_dir)
         self._cipher = cipher
+        self._migrator = migrator
 
     def _path(self, doc_type: str, doc_id: str) -> Path:
         return self._root / doc_type / f"{doc_id}.json"
@@ -51,7 +60,10 @@ class JsonStore(Repository):
         text = path.read_text(encoding="utf-8")
         if self._cipher is not None:
             text = self._cipher.decrypt(text)
-        return json.loads(text)
+        data = json.loads(text)
+        if self._migrator is not None:
+            data = self._migrator(doc_type, data)
+        return data
 
     def list_ids(self, doc_type: str) -> list[str]:
         directory = self._root / doc_type

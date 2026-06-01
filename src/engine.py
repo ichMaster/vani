@@ -44,6 +44,10 @@ class Engine:
     def _save_session(self, session: Session) -> None:
         self._repo.save("sessions", session.session_id, session.to_dict())
 
+    def transcript(self, session_id: str) -> list[tuple[str, str]]:
+        """Return the (role, text) history for a session, for an adapter to render."""
+        return [(t.role, t.text) for t in self._load_session(session_id).turns]
+
     async def handle_turn(
         self,
         session_id: str,

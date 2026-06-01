@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/portrait.schema.json",
+  "title": "Portrait",
+  "description": "Two-layer model of the interlocutor (theory of mind), plus the style profile and the long-term part. The interpretive layer and the style profile carry confidence. Non-diagnostic; not a dossier.",
+  "type": "object",
+  "required": ["schema_version", "user_id", "interpretive"],
+  "$defs": {
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Rises with confirmation, decays over time." }
+  },
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "user_id": { "type": "string" },
+    "interpretive": {
+      "type": "object",
+      "description": "Hypotheses about the user's own facets. Initially nearly empty; grown by the background pass with inertia.",
+      "properties": {
+        "facets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "confidence"],
+            "properties": {
+              "name": { "type": "string", "description": "e.g. Analyst, Nurturer, Vulnerable Child, Critic, Defender." },
+              "observation": { "type": "string", "description": "Non-diagnostic note about a pattern, not a clinical label." },
+              "confidence": { "$ref": "#/$defs/confidence" },
+              "evidence_refs": { "type": "array", "items": { "type": "string" }, "description": "Material observation ids supporting this hypothesis." },
+              "last_reinforced": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    },
+    "style_profile": {
+      "type": "object",
+      "description": "Moving average of the user's delivery features; drives the Layer 4 envelope.",
+      "properties": {
+        "mean_turn_length": { "type": "number" },
+        "register": { "type": "string" },
+        "complexity": { "type": "number" },
+        "question_density": { "type": "number" },
+        "pace": { "type": "number" },
+        "language_mix": { "type": "object" },
+        "impatience": { "type": "number" },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+    "long_term": {
+      "type": "object",
+      "description": "The durable part of the portrait; its confidence decays faster without reconfirmation."
+    }
+  }
+}

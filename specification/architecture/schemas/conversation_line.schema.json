@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/conversation_line.schema.json",
+  "title": "ConversationLine",
+  "description": "Cross-cutting continuity above the individual turn: open loops, the assistant's arc goals, the arc phase, follow-ups, and the initiative budget.",
+  "type": "object",
+  "required": ["schema_version", "arc_phase", "initiative_budget"],
+  "$defs": {
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "user_id": { "type": "string" },
+    "session_id": { "type": "string" },
+    "open_loops": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "significance"],
+        "properties": {
+          "id": { "type": "string" },
+          "summary": { "type": "string" },
+          "status": { "type": "string", "enum": ["open", "deferred", "closed"] },
+          "significance": { "type": "number", "minimum": 0, "maximum": 1 },
+          "owner_facet": { "type": "string", "description": "The facet that wishes to return to this loop." },
+          "confidence": { "$ref": "#/$defs/confidence" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "arc_goals": {
+      "type": "array",
+      "description": "The assistant's own conversational goals that outlive the turn.",
+      "items": { "type": "object", "properties": { "id": { "type": "string" }, "goal": { "type": "string" } } }
+    },
+    "arc_phase": {
+      "type": "string",
+      "enum": ["opening", "exploration", "deepening", "converging", "closing"]
+    },
+    "topic_timeline": {
+      "type": "array",
+      "items": { "type": "object", "properties": { "topic": { "type": "string" }, "at": { "type": "string", "format": "date-time" } } }
+    },
+    "follow_up_queue": {
+      "type": "array",
+      "description": "Pending follow-ups, including cross-session.",
+      "items": { "type": "object", "properties": { "id": { "type": "string" }, "prompt": { "type": "string" }, "cross_session": { "type": "boolean" } } }
+    },
+    "initiative_budget": {
+      "type": "number",
+      "description": "Decrements on assistant-led turns, refills on user-led turns; bounds lead-follow balance."
+    },
+    "curiosity": {
+      "type": "object",
+      "description": "A separate class of loops: gaps in the portrait generate a soft drive to understand better.",
+      "properties": { "drive": { "type": "number", "minimum": 0, "maximum": 1 } }
+    }
+  }
+}

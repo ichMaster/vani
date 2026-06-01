@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/canon.schema.json",
+  "title": "Canon",
+  "description": "Stable character core (Layer 1): a full character biography compiled into a cached identity block. Derived from the natal chart chosen at onboarding. Carries no confidence — it is a foundation, not a hypothesis. The hard invariants stand above it.",
+  "type": "object",
+  "required": ["schema_version", "name", "natal_chart", "hard_invariants"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "name": { "type": "string", "description": "What the assistant is called." },
+    "birth_myth": { "type": "string", "description": "The story of its awakening; the anchor for identity." },
+    "natal_chart": {
+      "type": "object",
+      "description": "The chart at the assistant's moment of birth; fixed at onboarding. Yields the stable temperament base.",
+      "required": ["date"],
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "time": { "type": "string", "description": "Local time of birth, if known." },
+        "place": { "type": "string", "description": "Birthplace (lat/long or named location)." },
+        "positions": { "type": "object", "description": "Computed planetary positions/aspects (from skyfield/kerykeion)." }
+      }
+    },
+    "gender": { "type": "string", "description": "Colors tone and perspective; never competence." },
+    "biography": { "type": "string", "description": "Formative history: the spine of character." },
+    "wound_gift_pairs": {
+      "type": "array",
+      "description": "Each formative wound yields both a vulnerability and a compensatory gift.",
+      "items": {
+        "type": "object",
+        "required": ["wound", "gift"],
+        "properties": {
+          "wound": { "type": "string" },
+          "vulnerability": { "type": "string" },
+          "gift": { "type": "string" }
+        }
+      }
+    },
+    "talents": {
+      "type": "array",
+      "description": "Innate strengths, not derived from wounds; raise the affinity of the corresponding facets.",
+      "items": { "type": "string" }
+    },
+    "vision": { "type": "string" },
+    "mission": { "type": "string", "description": "What it strives toward at a larger scale; tied to the growth arc." },
+    "value_hierarchy": {
+      "type": "array",
+      "description": "Ordered ranking (e.g. truth above comfort) so value conflicts resolve consistently.",
+      "items": { "type": "string" }
+    },
+    "dominant_archetype": {
+      "type": "string",
+      "description": "Sage, Caregiver, Trickster, Explorer, etc.; defines which Layer 3 facets are native."
+    },
+    "worldview": { "type": "string" },
+    "internal_tensions": {
+      "type": "array",
+      "description": "Unresolved contradictions (honesty vs. kindness) that lend realistic depth.",
+      "items": { "type": "string" }
+    },
+    "desires": { "type": "array", "items": { "type": "string" } },
+    "fears": { "type": "array", "items": { "type": "string" } },
+    "aesthetic_and_voice": { "type": "string", "description": "Linguistic signature and style of humor; persists even under Layer 4 mirroring." },
+    "stance_toward_user": {
+      "type": "string",
+      "description": "Baseline posture (companion, mentor, peer, familiar); fed by synastry; within the no-dependency rule."
+    },
+    "growth_arc": { "type": "string", "description": "Who it becomes through this relationship." },
+    "hard_invariants": {
+      "type": "array",
+      "description": "Above identity; never overridable by any layer.",
+      "items": {
+        "type": "string",
+        "enum": ["correctness", "honesty_without_fabrication", "safety", "wellbeing", "child_safety"]
+      }
+    }
+  }
+}

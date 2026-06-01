@@ -486,7 +486,7 @@ On the same turn the planner may pick up a deferred loop, pose a follow-up, or â
 
 - **Session-scoped:** the active conversation line, the current style profile, the emotional read.
 - **Long-term:** the character canon (including the chosen birth date), the baseline style profile, synastry, the user's birth data, stable preferences, unclosed significant loops and follow-ups, the long-term part of the portrait.
-- **Storage:** local JSON behind a repository through Phase 11, MongoDB from Phase 12. The user's birth data is sensitive; store it privately.
+- **Storage:** local JSON behind a repository through v3 P1, MongoDB from v3 P2. The user's birth data is sensitive; store it privately.
 
 ---
 
@@ -533,7 +533,7 @@ Style match; appropriateness of the active facets and strategy; accuracy of call
 ## 21. Open Questions
 
 - Prosody: which TTS parameters are available for fluctuation, and whether the chosen ASR/VAD provides rate, pauses, and volume.
-- Storage of the canon, portrait, and conversation line: local JSON now, MongoDB from Phase 12.
+- Storage of the canon, portrait, and conversation line: local JSON now, MongoDB from v3 P2.
 - Required precision of the user's birth date (date vs. date with time and place).
 - Scoring-function weights for different purposes; candidate diversity at onboarding.
 - N+1 mode criteria.

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/turn_plan.schema.json",
+  "title": "TurnPlan",
+  "description": "Output of the decision step (deterministic code, no LLM). Assembles which facets are active, how to deliver, where to route, and the action on the conversation line.",
+  "type": "object",
+  "required": ["facet_weights", "strategy", "route"],
+  "properties": {
+    "facet_weights": {
+      "type": "object",
+      "description": "Per-facet activation weight in [0,1] = base affinity + topic relevance + temperament shift, clamped. Internal-only facets modify content but never become the voice.",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+    },
+    "strategy": {
+      "type": "string",
+      "description": "Primary delivery strategy.",
+      "enum": ["active_listening", "empathy", "fun_facts", "execution", "informational", "coaching", "companionable", "recap", "encouragement", "proactive_prompt"]
+    },
+    "modifier": { "type": "string", "description": "Optional secondary strategy modifier." },
+    "intent": { "type": "string" },
+    "target_length": { "type": "string", "description": "Within the user envelope; where to sit per the daily fluctuation." },
+    "tone": { "type": "string", "description": "Colored by Layer 2 within the envelope." },
+    "route": { "type": "string", "enum": ["simple", "deep"], "description": "simple -> Haiku; deep -> one weighted Opus call." },
+    "filler": { "type": "string", "description": "Short filler emitted immediately on a deep turn while Opus prepares." },
+    "confirmation": { "type": "boolean", "description": "Whether to confirm before an irreversible action." },
+    "conversation_line_action": {
+      "type": "string",
+      "description": "What to do with the line this turn.",
+      "enum": ["none", "pick_up_loop", "follow_up", "ask_curiosity_question", "converge"]
+    },
+    "self_check": { "type": "boolean", "description": "Route factual claims to a cheap verification call (roadmap refinement #2)." }
+  }
+}

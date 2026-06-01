@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository status
 
-This is a **specification-only repository**. There is no implementation code yet — only design documents under `specification/`. The `.gitignore` is Python-oriented because the system is planned to be built in Python (see roadmap), but no source tree, package config, build, lint, or test tooling exists. Do not invent build/test commands; there are none until Phase 0 scaffolding is created.
+This is a **specification-only repository**. There is no implementation code yet — only design documents under `specification/`. The `.gitignore` is Python-oriented because the system is planned to be built in Python (see roadmap), but no source tree, package config, build, lint, or test tooling exists. Do not invent build/test commands; there are none until v1 P0 scaffolding is created.
 
-The first implementation task (roadmap Phase 0) is to scaffold the Python project under a `voice_companion/` package with the module layout defined in the architecture doc, choose dependency/packaging/lint tooling, and stand up the `Repository` interface + `json_store`.
+The first implementation task (roadmap v1 P0) is to scaffold the Python project under a `voice_companion/` package with the module layout defined in the architecture doc, choose dependency/packaging/lint tooling, and stand up the `Repository` interface + `json_store`.
 
 ## What Vani is
 
@@ -14,13 +14,13 @@ A single, coherent "living personality" voice companion. One personality, not a 
 
 ## Document map (read these to understand the system)
 
-The three documents form a deliberate "what / how / when" triad — keep them consistent when editing:
+`specification/` holds the **English** documents in a category-first taxonomy (`architecture/`, `requirements/`, `roadmap/`, `missions/`). The original **Ukrainian** documents live flat under `docs/requirements_ukr/` at the repo root. The three core documents form a deliberate "what / how / when" triad — keep them consistent when editing:
 
-- `specification/Vani_eng/Vani_specification_v1.8_EN.md` — **the "what."** Authoritative master spec. Defines the four personality layers, the per-turn planner pipeline, facets, conversation line, portrait, confidence, Guardian, state model (§13), and config knobs (§18). Start here.
-- `specification/Vani_eng/Vani_architecture_v0.1_EN.md` — **the "how."** The `voice_companion/` module layout (§2), module responsibilities (§3), state documents, and tech stack by phase (§8).
-- `specification/Vani_eng/Vani_roadmap_v0.2_EN.md` — **the "when."** 14 phases (P0–P13), each with goal/scope/modules/tasks/definition-of-done, plus six review-driven refinements mapped to phases (§3).
+- `specification/requirements/specification-v1.8.en.md` — **the "what."** Authoritative master spec. Defines the four personality layers, the per-turn planner pipeline, facets, conversation line, portrait, confidence, Guardian, state model (§13), and config knobs (§18). Start here.
+- `specification/architecture/architecture-v0.1.en.md` — **the "how."** The `voice_companion/` module layout (§2), module responsibilities (§3), state documents, and tech stack by phase (§8).
+- `specification/roadmap/roadmap-v0.2.en.md` — **the "when."** Three delivery versions — v1 (phases P0–P4), v2 (P1–P6), v3 (P1–P3) — each phase with goal/scope/modules/tasks/definition-of-done, plus six review-driven refinements mapped to phases (§3). Cross-references use `vN Pk` (e.g. `v2 P4`).
 
-`specification/Vani_ukr/` holds the Ukrainian counterparts (parallel translations, plus `vani_article_full_uk.md`, a longer research-style article). **When changing a spec, update both the English and Ukrainian versions** so they stay in sync, and bump the version number in the header. English is treated as authoritative.
+Each English doc has a Ukrainian original under `docs/requirements_ukr/` (`.uk.md` / `.uk.docx`). `specification/missions/vani-article.en.md` is a longer research-style article on the overall concept (the academic framing, scientific-grounding table, and six peer reviews), translated from the Ukrainian original at `docs/requirements_ukr/vani-article.uk.md`. **When changing a spec, update both the English (`specification/`) and Ukrainian (`docs/requirements_ukr/`) versions** so they stay in sync, and bump the version number in the header. English is treated as authoritative.
 
 ## Core architecture concepts (span multiple sections — internalize before coding)
 
@@ -40,16 +40,16 @@ The three documents form a deliberate "what / how / when" triad — keep them co
 
 **Confidence is a cross-cutting attribute** (spec §9.7) on nearly every state element (emotion, intent, facet weights, style profile, loops, portrait hypotheses): it rises with confirmation, decays over time, and drives decisions (low confidence → ask again / be cautious / mirror less). **Exception:** the canon and hard invariants carry no confidence — they are foundation, not hypothesis.
 
-**State lives behind a repository interface** (architecture §4). `state/repository.py` is the single access point; `json_store.py` backs it through Phase 11, `mongo_store.py` from Phase 12. No personality layer knows which store sits beneath it — this is what makes the eventual JSON→Mongo swap a one-module change. The same logical documents (`canon`, `users`, `portrait`, `conversation_line`, `question_bank`, `material`, `sessions`, `telemetry`, `validation_log`) exist at every stage.
+**State lives behind a repository interface** (architecture §4). `state/repository.py` is the single access point; `json_store.py` backs it through v3 P1, `mongo_store.py` from v3 P2. No personality layer knows which store sits beneath it — this is what makes the eventual JSON→Mongo swap a one-module change. The same logical documents (`canon`, `users`, `portrait`, `conversation_line`, `question_bank`, `material`, `sessions`, `telemetry`, `validation_log`) exist at every stage.
 
-**The brain is constant; only transport and storage change across phases.** Personality layers, planner, background pass, and Guardian are identical whether running in the local TUI (P0–P11), behind a WebSocket server (P12), or driving the physical device (P13).
+**The brain is constant; only transport and storage change across phases.** Personality layers, planner, background pass, and Guardian are identical whether running in the local TUI (Versions 1–2 and v3 P1), behind a WebSocket server (v3 P2), or driving the physical device (v3 P3).
 
 ## Phase-ordering note
 
-The roadmap is **reprioritized by review scores**, not by dependency-natural order: the high-value cognitive machinery (planner, conversation line, portrait+confidence, background pass — P1–P4) is built *before* canon, astro, onboarding, facets, and delivery (P5–P9). Consequence: early phases run with a thin placeholder canon, plain-text delivery, and only a minimal safety gate; these are filled in during the second wave (the full Guardian arrives at P8). Check the current phase before assuming a layer is fully implemented.
+The roadmap is **reprioritized by review scores**, not by dependency-natural order: the high-value cognitive machinery (planner, conversation line, portrait+confidence, background pass — Version 1, v1 P1–P4) is built *before* canon, astro, onboarding, facets, and delivery (Version 2, v2 P1–P5). Consequence: early phases run with a thin placeholder canon, plain-text delivery, and only a minimal safety gate; these are filled in during Version 2 (the full Guardian arrives at v2 P4). Check the current version and phase before assuming a layer is fully implemented.
 
 ## Planned tech stack (per architecture §8)
 
-- **P0–P11 (local):** Python, Textual (TUI), Anthropic SDK (Haiku/Opus), skyfield/kerykeion (astro charts), asyncio, local JSON state. From P11: faster-whisper (ASR) + Piper-Ukrainian (TTS).
-- **P12:** FastAPI + WebSocket server, MongoDB.
-- **P13:** AtomS3R + Echo Pyramid with xiaozhi firmware, Opus audio codec.
+- **Versions 1–2 and v3 P1 (local):** Python, Textual (TUI), Anthropic SDK (Haiku/Opus), skyfield/kerykeion (astro charts), asyncio, local JSON state. From v3 P1: faster-whisper (ASR) + Piper-Ukrainian (TTS).
+- **v3 P2:** FastAPI + WebSocket server, MongoDB.
+- **v3 P3:** AtomS3R + Echo Pyramid with xiaozhi firmware, Opus audio codec.

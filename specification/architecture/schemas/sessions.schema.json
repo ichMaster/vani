@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/sessions.schema.json",
+  "title": "Session",
+  "description": "Per-session turn history and session-scoped state (the active emotional read and the current style snapshot). Long-term state lives in canon/users/portrait.",
+  "type": "object",
+  "required": ["schema_version", "session_id", "user_id", "turns"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "session_id": { "type": "string" },
+    "user_id": { "type": "string" },
+    "started_at": { "type": "string", "format": "date-time" },
+    "ended_at": { "type": "string", "format": "date-time" },
+    "turns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["turn_id", "role"],
+        "properties": {
+          "turn_id": { "type": "string" },
+          "role": { "type": "string", "enum": ["user", "assistant"] },
+          "text": { "type": "string" },
+          "route": { "type": "string", "enum": ["simple", "deep"] },
+          "turn_plan": { "$ref": "turn_plan.schema.json" },
+          "perception": { "$ref": "perception_result.schema.json" },
+          "timestamps": {
+            "type": "object",
+            "properties": {
+              "received": { "type": "string", "format": "date-time" },
+              "first_audio": { "type": "string", "format": "date-time" },
+              "completed": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      }
+    },
+    "emotional_read": {
+      "type": "object",
+      "description": "Session-scoped, non-diagnostic affect estimate.",
+      "properties": { "valence": { "type": "number" }, "arousal": { "type": "number" }, "confidence": { "type": "number", "minimum": 0, "maximum": 1 } }
+    }
+  }
+}

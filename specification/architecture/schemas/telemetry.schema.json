@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/telemetry.schema.json",
+  "title": "Telemetry",
+  "description": "Per-turn metrics for evaluation and tuning (specification §20). Sensitive fields are redacted before they reach telemetry.",
+  "type": "object",
+  "required": ["schema_version", "events"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["turn_id", "timestamp"],
+        "properties": {
+          "turn_id": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "route": { "type": "string", "enum": ["simple", "deep"] },
+          "latency_ms": {
+            "type": "object",
+            "properties": {
+              "time_to_first_audio": { "type": "number" },
+              "filler_start": { "type": "number" },
+              "perception": { "type": "number" },
+              "generation": { "type": "number" }
+            }
+          },
+          "token_usage": {
+            "type": "object",
+            "properties": {
+              "haiku_input": { "type": "integer" },
+              "haiku_output": { "type": "integer" },
+              "opus_input": { "type": "integer" },
+              "opus_output": { "type": "integer" },
+              "cache_read": { "type": "integer" }
+            }
+          },
+          "metrics": {
+            "type": "object",
+            "description": "Quality metrics (specification §20).",
+            "properties": {
+              "style_match": { "type": "number" },
+              "facet_appropriateness": { "type": "number" },
+              "strategy_appropriateness": { "type": "number" },
+              "callback_accuracy": { "type": "number" },
+              "loops_closed_in_time": { "type": "number" },
+              "guardian_outcome": { "type": "string", "enum": ["pass", "redirect", "block"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}

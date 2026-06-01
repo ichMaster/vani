@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/validation_log.schema.json",
+  "title": "ValidationLog",
+  "description": "Code-vs-model discrepancies recorded by the async background pass (policy validation), accumulated for tuning thresholds and tables. Has shadow (telemetry-only) and active (soft state correction) modes.",
+  "type": "object",
+  "required": ["schema_version", "entries"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["turn_id", "mode"],
+        "properties": {
+          "turn_id": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "mode": { "type": "string", "enum": ["shadow", "active"] },
+          "facet_discrepancy": {
+            "type": "object",
+            "description": "Code-chosen vs. validator-preferred facets.",
+            "properties": { "code": { "type": "array", "items": { "type": "string" } }, "validator": { "type": "array", "items": { "type": "string" } } }
+          },
+          "strategy_discrepancy": {
+            "type": "object",
+            "properties": { "code": { "type": "string" }, "validator": { "type": "string" } }
+          },
+          "classification_discrepancy": {
+            "type": "object",
+            "description": "Step-1 emotion/intent classification disagreements.",
+            "properties": { "field": { "type": "string" }, "code": { "type": "string" }, "validator": { "type": "string" } }
+          },
+          "missed_loops": { "type": "array", "items": { "type": "string" }, "description": "Open loops the code overlooked." },
+          "correction_applied": { "type": "boolean", "description": "True in active mode when a soft, inertial correction was mixed into state." }
+        }
+      }
+    }
+  }
+}

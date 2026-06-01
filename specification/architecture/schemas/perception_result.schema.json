@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/perception_result.schema.json",
+  "title": "PerceptionResult",
+  "description": "Output of the perception step (the only LLM call at the input, on Haiku). Reads the message; does not reply. Every field carries its own confidence.",
+  "type": "object",
+  "required": ["topic", "intent", "emotion", "modality"],
+  "$defs": {
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+  },
+  "properties": {
+    "topic": {
+      "type": "object",
+      "required": ["value", "confidence"],
+      "properties": { "value": { "type": "string" }, "confidence": { "$ref": "#/$defs/confidence" } }
+    },
+    "intent": {
+      "type": "object",
+      "required": ["value", "confidence"],
+      "properties": { "value": { "type": "string", "description": "Intent type (question, command, sharing, weighing a decision, chit-chat, ...)." }, "confidence": { "$ref": "#/$defs/confidence" } }
+    },
+    "emotion": {
+      "type": "object",
+      "description": "Non-diagnostic affect.",
+      "properties": {
+        "valence": { "type": "number", "minimum": -1, "maximum": 1 },
+        "arousal": { "type": "number", "minimum": 0, "maximum": 1 },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+    "modality": {
+      "type": "object",
+      "description": "Utterance register — not 'truthfulness'. Never lowers safety vigilance.",
+      "required": ["value", "confidence"],
+      "properties": {
+        "value": { "type": "string", "enum": ["joke", "serious", "hypothetical", "sarcasm", "quotation", "exaggeration"] },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+    "style_signals": {
+      "type": "object",
+      "description": "Observed turn length, register, pace, language mix, impatience.",
+      "properties": {
+        "turn_length": { "type": "number" },
+        "register": { "type": "string" },
+        "pace": { "type": "number" },
+        "language_mix": { "type": "object" }
+      }
+    },
+    "open_loop_matches": {
+      "type": "array",
+      "description": "Matches of this message against currently open loops.",
+      "items": { "type": "object", "properties": { "loop_id": { "type": "string" }, "confidence": { "$ref": "#/$defs/confidence" } } }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vani.dev/schemas/material.schema.json",
+  "title": "Material",
+  "description": "The observational layer: a box of raw observations the fast planner appends every turn, without interpretation. The background pass reads from here to grow the portrait. Carries no confidence (it is raw, not inferred).",
+  "type": "object",
+  "required": ["schema_version", "observations"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "user_id": { "type": "string" },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["turn_id", "timestamp"],
+        "properties": {
+          "turn_id": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "message": { "type": "string", "description": "What the user said (raw)." },
+          "reaction": { "type": "string", "description": "Observed reaction (e.g. voice warmed, grew defensive)." },
+          "topic": { "type": "string" },
+          "signals": { "type": "object", "description": "Style/prosody signals captured without interpretation." },
+          "consumed": { "type": "boolean", "description": "True once the background pass has interpreted it." }
+        }
+      }
+    }
+  }
+}

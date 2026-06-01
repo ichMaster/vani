@@ -1,11 +1,11 @@
 ---
 name: execute-issues
-description: Execute GitHub issues for a phase sequentially - implement, validate, commit, push, and generate a report.
+description: Execute GitHub issues for a phase sequentially - implement, validate, commit, push, and generate an execution report plus an implementation guide in docs/implementation.
 ---
 
 # Skill: Execute GitHub Issues
 
-Execute GitHub issues for a phase sequentially: implement, validate, commit, push, and generate a report.
+Execute GitHub issues for a phase sequentially: implement, validate, commit, push, then generate an execution report (under `specification/`) and a durable implementation guide (under `docs/implementation/`).
 
 ## Usage
 
@@ -252,6 +252,60 @@ git commit -m "$(cat <<'EOF'
 Add phase {y} execution report
 
 {n} issues completed, {n} failed, {n} remaining.
+
+Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+EOF
+)"
+git push
+```
+
+### Step 5: Generate the implementation guide (docs/implementation)
+
+In addition to the execution report (a per-run record under `specification/`), create or update a durable, human-facing **implementation guide** that explains *what was implemented and how it works*:
+
+`docs/implementation/v{N}-phase-{y}.md`
+
+where `{N}` is the delivery version (the `implementation-v{N}/` the issues came from) and `{y}` is the phase number. If the file already exists (a re-run), update it in place rather than duplicating.
+
+Where the execution report says "which issues ran and passed," this guide says "what the code now is and how the pieces fit," so a new reader understands the current build. Ground it in the actual code from this phase (modules added/changed, the runtime flow, key design decisions) — do not restate issue text verbatim.
+
+Template:
+
+```markdown
+# Vani — v{N} Phase {y} Implementation Guide
+
+**Version:** {version} (tag `v{version}`) · **Scope:** roadmap `v{N} P{y}` — {phase title}.
+
+{One paragraph: what this phase adds and the end-to-end behavior now possible.}
+
+## What changed in this phase
+- `{module/file}` — {what it does and why} (VANI-xxx)
+- ...
+
+## How it works
+{The flow through the new/changed pieces — a mermaid diagram for the per-turn or data path when it helps.}
+
+## The pieces
+### {module} (`src/...`)
+{its role and how it connects to the rest}
+
+## Design decisions
+- {decision} — {rationale}
+
+## Where this maps
+| Concern | Code | Spec / Architecture |
+|---|---|---|
+| ... | `src/...` | architecture §N / spec §N |
+
+**Next:** v{N} P{y+1} — see `specification/roadmap/implementation-v{N}/phase-{y+1}-issues.md`.
+```
+
+Then commit and push:
+
+```bash
+git add docs/implementation/v{N}-phase-{y}.md
+git commit -m "$(cat <<'EOF'
+Add v{N} Phase {y} implementation guide
 
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 EOF

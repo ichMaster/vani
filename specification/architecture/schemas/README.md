@@ -4,7 +4,7 @@ JSON Schema (draft 2020-12) for Vani's data contracts. These are the authoritati
 
 ## Conventions
 
-- **`schema_version`** — every persisted document carries it; the repository migrates on read (old → current), so field evolution and the JSON → Mongo move (v3 P2) never break existing state.
+- **`schema_version`** — every persisted document carries it; the repository migrates on read (old → current), so field evolution and the JSON → Mongo move (v2 P2) never break existing state.
 - **Confidence** — most inferred state carries a `confidence` (number, 0–1) that rises with confirmation and decays over time. The **canon and the hard invariants carry no confidence** — they are a stable foundation, not hypotheses.
 - **Sensitivity** — the user's birth data and the portrait's interpretive hypotheses are sensitive: encrypted at rest in the repository, redacted in telemetry, deletable on demand (architecture §13).
 - Schemas are intentionally lenient (extra properties allowed) at this early stage; tighten as the contracts stabilize.

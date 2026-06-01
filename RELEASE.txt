@@ -2,19 +2,19 @@ Version 0.1.0 (2026-06-01)
 ---------------------------
 - Load ANTHROPIC_API_KEY from a local .env (precedence: env var > .env > default).
 - README: updated status and added getting-started / run instructions.
-- Add the v1 Phase 0 implementation guide (docs/implementation/v1-phase-0.md).
-- Add the v1 Phase 0 execution report.
+- Add the v0 Phase 0 implementation guide (docs/implementation/v1-phase-0.md).
+- Add the v0 Phase 0 execution report.
 
 Version 0.0.1 (2026-06-01)
 ---------------------------
-Version 1, Phase 0 — Chat Skeleton (TUI). The first working build: a local,
+Version 0, Phase 0 — Chat Skeleton (TUI). The first working build: a local,
 streaming text chat with a transport-agnostic brain, behind clean contracts.
 
 - VANI-001 Project scaffold and tooling: src/ package, pyproject (.venv, ruff, pytest), config loader, entry point.
 - VANI-002 Repository interface and json_store: single state-access point with atomic JSON persistence and a cipher hook.
 - VANI-003 Data contracts and versioned schemas: Session/Turn models, schema_version + migrate-on-read, JSON Schema validation.
 - VANI-004 LLM client (Opus, streaming): Anthropic client behind a mockable LLMClient protocol with token usage.
-- VANI-005 Transport-agnostic engine: Engine.handle_turn over the repository (no globals), the seam for the v3 API.
+- VANI-005 Transport-agnostic engine: Engine.handle_turn over the repository (no globals), the seam for the v2 API.
 - VANI-006 TUI loop and transcript persistence: Textual chat adapter that reloads history and streams replies.
 - VANI-007 Minimal guardrail pass: synchronous placeholder Guardian; output is gated before it reaches the UI.
 - VANI-008 Placeholder canon and confidence scaffolding: a minimal identity compiled into the system prompt; Confident[T].

@@ -1,8 +1,8 @@
-# Version 1, Phase 0 — GitHub Issues Report
+# Version 0, Phase 0 — GitHub Issues Report
 
 **Uploaded:** 2026-06-01
 **Repository:** https://github.com/ichMaster/vani
-**Source:** `specification/roadmap/implementation-v1/phase-0-issues.md`
+**Source:** `specification/roadmap/implementation-v0/phase-0-issues.md`
 **Total issues:** 10
 
 ## Issue Mapping

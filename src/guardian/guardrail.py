@@ -3,7 +3,7 @@
 Safety is checked synchronously before anything is shown; it is never deferred
 (no rollback once spoken). This is a placeholder: a denylist-based pass/redirect
 with a clear extension point. The full Guardian — rubric, wellbeing, child
-safety, no-manipulation rule — arrives at v2 P4.
+safety, no-manipulation rule — arrives at v1 P4.
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ class Guardian(Protocol):
 class MinimalGuardian:
     """Placeholder gate: redirects replies containing a denylisted term, else passes.
 
-    The denylist is the extension point; the full rubric replaces it at v2 P4.
+    The denylist is the extension point; the full rubric replaces it at v1 P4.
     Defaults to empty (pure pass-through) for V1.
     """
 

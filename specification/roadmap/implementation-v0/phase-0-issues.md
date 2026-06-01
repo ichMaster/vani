@@ -1,6 +1,6 @@
-# Version 1, Phase 0 — Chat Skeleton (TUI): GitHub Issues
+# Version 0, Phase 0 — Chat Skeleton (TUI): GitHub Issues
 
-Decomposes roadmap `v1 P0` into implementable issues. IDs are continuous across Version 1 phases (`VANI-001`…). Labels follow the `upload-issues` skill: `p0::phase:0`, `p0::size:*`, `p0::stage:*`.
+Decomposes roadmap `v0 P0` into implementable issues. IDs are continuous across Version 0 phases (`VANI-001`…). Labels follow the `upload-issues` skill: `p0::phase:0`, `p0::size:*`, `p0::stage:*`.
 
 ## Issues Summary Table
 
@@ -48,7 +48,7 @@ VANI-002 + VANI-004 --> VANI-005 (engine)
 ### VANI-001 — Project scaffold and tooling
 
 **Description:**
-Stand up the `src/` Python project so every other issue has a place to live. This is the base of v1 P0.
+Stand up the `src/` Python project so every other issue has a place to live. This is the base of v0 P0.
 
 **What needs to be done:**
 - Create the repo's Python project: a `.venv` virtualenv and `pyproject.toml` (Python 3.11+, dependencies: `anthropic`, `textual`; dev extra `[dev]`: `pytest`, `pytest-asyncio`, `ruff`).
@@ -73,7 +73,7 @@ A clean, installable skeleton: the package imports, `ruff` and `pytest` run (no 
 ### VANI-002 — Repository interface and json_store
 
 **Description:**
-The single state-access point. Every layer reads/writes state through `Repository`; `json_store` backs it for all of Versions 1–2 (architecture §4, §10).
+The single state-access point. Every layer reads/writes state through `Repository`; `json_store` backs it for all of Versions 0–1 (architecture §4, §10).
 
 **What needs to be done:**
 - Define the `Repository` interface in `state/repository.py`: load/save by document type and id, list, delete.
@@ -123,7 +123,7 @@ A single source of truth for data shapes; documents carry a version and migrate 
 ### VANI-004 — LLM client (Opus, streaming)
 
 **Description:**
-The `llm` module is the only place the model is called, which keeps it mockable in tests (architecture §11). P0 needs the Opus path with streaming; Haiku and the prompt-prefix cache arrive at v1 P1 / v2 P1.
+The `llm` module is the only place the model is called, which keeps it mockable in tests (architecture §11). P0 needs the Opus path with streaming; Haiku and the prompt-prefix cache arrive at v0 P1 / v1 P1.
 
 **What needs to be done:**
 - Implement an `llm` client over the Anthropic SDK with **streaming** output.
@@ -147,7 +147,7 @@ A streaming Opus client behind a thin, mockable interface, returning text and us
 ### VANI-005 — Transport-agnostic engine
 
 **Description:**
-The brain entry point that makes the v3 API a wrapper, not a rewrite (architecture §10). In P0 it is a thin pass-through to the `llm`; the planner plugs in at v1 P1.
+The brain entry point that makes the v2 API a wrapper, not a rewrite (architecture §10). In P0 it is a thin pass-through to the `llm`; the planner plugs in at v0 P1.
 
 **What needs to be done:**
 - Implement `engine.handle_turn(session_id, user_input) -> response` (async), plus an event/stream variant for streamed output.
@@ -199,7 +199,7 @@ A usable text chat that streams replies and whose history survives a restart.
 ### VANI-007 — Minimal guardrail pass (placeholder Guardian)
 
 **Description:**
-A minimal synchronous output check standing in for the full Guardian (which arrives at v2 P4). Safety is never deferred off the synchronous path (architecture §12, §13).
+A minimal synchronous output check standing in for the full Guardian (which arrives at v1 P4). Safety is never deferred off the synchronous path (architecture §12, §13).
 
 **What needs to be done:**
 - Add a synchronous guardrail step between generation and display in the engine.
@@ -215,7 +215,7 @@ Every reply passes a synchronous guardrail before being shown, with a seam for t
 - [ ] No reply reaches the TUI without passing the guardrail
 - [ ] The guardrail can block/redirect output
 - [ ] Outcome is recorded in telemetry
-- [ ] The interface is ready for the full Guardian to drop in at v2 P4
+- [ ] The interface is ready for the full Guardian to drop in at v1 P4
 
 ---
 
@@ -225,7 +225,7 @@ Every reply passes a synchronous guardrail before being shown, with a seam for t
 A minimal identity so the assistant is *someone* in P0, plus the cross-cutting confidence fields the later layers rely on.
 
 **What needs to be done:**
-- Author a minimal placeholder `canon` document (name + a short identity block) — full bible comes at v2 P1 (`architecture/schemas/canon.schema.json`).
+- Author a minimal placeholder `canon` document (name + a short identity block) — full bible comes at v1 P1 (`architecture/schemas/canon.schema.json`).
 - Compile the canon into a system prompt block passed to the `llm`.
 - Scaffold a `confidence` (0–1) field on state elements that will carry it; the canon and hard invariants carry none.
 
@@ -245,11 +245,11 @@ A recognizable (if thin) identity in replies, and confidence fields present in s
 ### VANI-009 — Logging and telemetry scaffolding
 
 **Description:**
-Structured logging and a telemetry sink (no metrics yet) so later phases (per-turn metrics at v1 P1) have somewhere to write.
+Structured logging and a telemetry sink (no metrics yet) so later phases (per-turn metrics at v0 P1) have somewhere to write.
 
 **What needs to be done:**
 - Implement structured logging with configurable levels in `telemetry/` (or `utils/`).
-- Add a telemetry sink that later phases append per-turn records to (`architecture/schemas/telemetry.schema.json` shape; populated at v1 P1).
+- Add a telemetry sink that later phases append per-turn records to (`architecture/schemas/telemetry.schema.json` shape; populated at v0 P1).
 - Redact sensitive fields from telemetry (refinement #1).
 
 **Dependencies:** VANI-001
@@ -270,7 +270,7 @@ Working structured logging and an empty-but-ready telemetry sink with redaction 
 ### VANI-010 — pytest harness and headless replay
 
 **Description:**
-The test foundation for all of Version 1: `pytest` plus a headless replay harness that drives turns through the repository with a mocked `llm` (architecture §14; roadmap cross-cutting testing policy).
+The test foundation for all of Version 0: `pytest` plus a headless replay harness that drives turns through the repository with a mocked `llm` (architecture §14; roadmap cross-cutting testing policy).
 
 **What needs to be done:**
 - Wire `pytest` (and `pytest-asyncio`) so `pytest` runs green.

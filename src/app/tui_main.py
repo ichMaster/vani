@@ -1,4 +1,4 @@
-"""Entry point for the local text build (Versions 1-2, v3 P1).
+"""Entry point for the local text build (Versions 0-1, v2 P1).
 
 The composition root: it wires the concrete dependencies (config, repository,
 llm) into the brain `Engine`, then hands the engine to the TUI adapter. This is

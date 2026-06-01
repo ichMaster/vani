@@ -2,7 +2,7 @@
 
 **A living-personality voice companion.** Vani is designed not as a "query → response" function but as a single, coherent presence: it is born to fit the user at onboarding, has a stable character, wakes with a daily mood, adapts its manner to the user, carries a running conversation, and builds a model of the person over time — yet always speaks as one voice.
 
-> **Status: early build (v0.1.0).** Version 1, Phase 0 — the local text-chat skeleton — is implemented under `src/`: a transport-agnostic brain (`engine`), the repository + JSON store, versioned data contracts, a streaming Anthropic client, a synchronous guardrail, a placeholder canon, telemetry, and a Textual TUI. The remaining phases (planner, personality layers, voice, server, device) are still design documents — see the [roadmap](specification/roadmap/roadmap-v0.2.en.md).
+> **Status: early build (v0.1.0).** Version 0, Phase 0 — the local text-chat skeleton — is implemented under `src/`: a transport-agnostic brain (`engine`), the repository + JSON store, versioned data contracts, a streaming Anthropic client, a synchronous guardrail, a placeholder canon, telemetry, and a Textual TUI. The remaining phases (planner, personality layers, voice, server, device) are still design documents — see the [roadmap](specification/roadmap/roadmap-v0.2.en.md).
 
 ## Getting started
 
@@ -45,11 +45,11 @@ Work is delivered in three product **versions** (phases are reprioritized by rev
 
 | Version | Phases | Focus |
 |---|---|---|
-| **Version 1** — Cognitive core (text) | P0–P4 | planner, conversation line, portrait + confidence, background pass |
-| **Version 2** — Personality layers (text) | P1–P6 | canon, astro + temperament, onboarding, weighted facets + Guardian, delivery, memory |
-| **Version 3** — Voice, server, device | P1–P3 | voice (ASR/TTS), server + MongoDB, hardware |
+| **Version 0** — Cognitive core (text) | P0–P4 | planner, conversation line, portrait + confidence, background pass |
+| **Version 1** — Personality layers (text) | P1–P6 | canon, astro + temperament, onboarding, weighted facets + Guardian, delivery, memory |
+| **Version 2** — Voice, server, device | P1–P3 | voice (ASR/TTS), server + MongoDB, hardware |
 
-Cross-references use the form `vN Pk` (e.g. `v2 P4`). Full detail in the [roadmap](specification/roadmap/roadmap-v0.2.en.md).
+Cross-references use the form `vN Pk` (e.g. `v1 P4`). Full detail in the [roadmap](specification/roadmap/roadmap-v0.2.en.md).
 
 ## Where to start
 
@@ -64,7 +64,7 @@ Background reading: [the concept article](specification/missions/vani-article.en
 ## Repository layout
 
 ```
-src/                      # the application (v1 P0): engine, state, contracts, llm,
+src/                      # the application (v0 P0): engine, state, contracts, llm,
                           #   guardian, core, telemetry, config, tui, app
 tests/                    # pytest suite (unit) + replay/ (headless harness)
 pyproject.toml            # deps + ruff/pytest config; `vani` entry point
@@ -72,7 +72,7 @@ specification/            # English design documents
   requirements/           # the master specification ("what")
   architecture/           # solution architecture ("how")
     schemas/              # JSON Schema for state documents + pipeline contracts
-  roadmap/                # implementation roadmap ("when") + implementation-v1/ issues
+  roadmap/                # implementation roadmap ("when") + implementation-v0/ issues
   missions/               # the long-form concept article
 docs/
   requirements_ukr/       # Ukrainian originals (.uk.md / .uk.docx)
@@ -83,10 +83,10 @@ The documents exist in **English** (`specification/`) and **Ukrainian** (`docs/r
 
 ## Tech stack
 
-- **In place (v1 P0, local):** Python 3.11+ (`.venv` + `pyproject.toml`), Textual (TUI), the Anthropic SDK, `python-dotenv`, local JSON state, `pytest` + `ruff`.
-- **Planned for the rest of Versions 1–2 and v3 P1 (local):** skyfield (astro), a local LLM fallback (Gemma/Qwen) for offline turns; from v3 P1, Whisper (ASR) + Piper-Ukrainian (TTS).
-- **v3 P2:** FastAPI + WebSocket server, MongoDB.
-- **v3 P3:** AtomS3R + Echo Pyramid with xiaozhi firmware, Opus audio codec.
+- **In place (v0 P0, local):** Python 3.11+ (`.venv` + `pyproject.toml`), Textual (TUI), the Anthropic SDK, `python-dotenv`, local JSON state, `pytest` + `ruff`.
+- **Planned for the rest of Versions 0–1 and v2 P1 (local):** skyfield (astro), a local LLM fallback (Gemma/Qwen) for offline turns; from v2 P1, Whisper (ASR) + Piper-Ukrainian (TTS).
+- **v2 P2:** FastAPI + WebSocket server, MongoDB.
+- **v2 P3:** AtomS3R + Echo Pyramid with xiaozhi firmware, Opus audio codec.
 
 ## License
 

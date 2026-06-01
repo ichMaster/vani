@@ -3,7 +3,7 @@
 Almost everything the assistant infers about the user or the situation carries a
 confidence in [0, 1] that rises with confirmation and decays over time without
 it. The canon and the hard invariants carry NO confidence — they are a stable
-foundation, not hypotheses. The rise/decay equations are formalized at v1 P3 /
+foundation, not hypotheses. The rise/decay equations are formalized at v0 P3 /
 refinement #5; P0 only scaffolds the field and a clamped wrapper.
 """
 

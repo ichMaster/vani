@@ -1,7 +1,7 @@
 """Layer 1 character core — the placeholder canon for P0 (architecture §3.1).
 
 A minimal identity so the assistant is *someone*; the full hand-authored
-character bible arrives at v2 P1 (canon.schema.json). The canon carries NO
+character bible arrives at v1 P1 (canon.schema.json). The canon carries NO
 confidence — it is a stable foundation, not a hypothesis.
 """
 
@@ -13,7 +13,7 @@ from src.state.repository import Repository
 CANON_DOC_TYPE = "canon"
 CANON_ID = "default"
 
-# Minimal placeholder canon. Expanded into the full bible at v2 P1.
+# Minimal placeholder canon. Expanded into the full bible at v1 P1.
 PLACEHOLDER_CANON: Document = {
     "schema_version": 1,
     "name": "Vani",

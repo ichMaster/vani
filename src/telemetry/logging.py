@@ -1,9 +1,9 @@
-"""Structured logging and a telemetry sink (scaffolding for v1 P1).
+"""Structured logging and a telemetry sink (scaffolding for v0 P1).
 
 Provides a configurable logger and a repository-backed telemetry sink that
 later phases append per-turn records to (telemetry.schema.json). Sensitive
 fields are redacted before anything is written (refinement #1). No metrics are
-computed here — that begins at v1 P1.
+computed here — that begins at v0 P1.
 """
 
 from __future__ import annotations

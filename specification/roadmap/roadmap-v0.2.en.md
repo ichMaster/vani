@@ -3,29 +3,29 @@
 Living-personality voice companion. Backend — Python. Revision 0.4 — phases grouped into three delivery versions (order reprioritized by review scores).
 The "when" document. The "what" is in the specification (v1.8). The "how" is in the architecture (v0.1).
 
-**Version and phase notation.** The work is delivered in three product **versions**. Each version contains numbered **phases**: Version 1 begins at Phase 0 (P0); Versions 2 and 3 each begin at Phase 1 (P1). Cross-references use the form `vN Pk` — e.g. `v1 P1` is Version 1, Phase 1; `v2 P4` is Version 2, Phase 4.
+**Version and phase notation.** The work is delivered in three product **versions**. Each version contains numbered **phases**: Version 0 begins at Phase 0 (P0); Versions 1 and 2 each begin at Phase 1 (P1). Cross-references use the form `vN Pk` — e.g. `v0 P1` is Version 0, Phase 1; `v1 P4` is Version 1, Phase 4.
 
-- **Version 1 — Cognitive core (text):** phases P0–P4 — the high-score concepts (planner, conversation line, portrait + confidence, background pass).
-- **Version 2 — Personality layers (text):** phases P1–P6 — canon, astro + temperament, onboarding, weighted facets + Guardian, delivery, memory.
-- **Version 3 — Voice, server, and device:** phases P1–P3 — voice (ASR/TTS), server + MongoDB, hardware.
+- **Version 0 — Cognitive core (text):** phases P0–P4 — the high-score concepts (planner, conversation line, portrait + confidence, background pass).
+- **Version 1 — Personality layers (text):** phases P1–P6 — canon, astro + temperament, onboarding, weighted facets + Guardian, delivery, memory.
+- **Version 2 — Voice, server, and device:** phases P1–P3 — voice (ASR/TTS), server + MongoDB, hardware.
 
 ---
 
 ## 1. Principle
 
-The phase order is reprioritized by the consolidated review scores: **concepts scoring >= 8 are built first** — the planner (8), the conversation line (10), the portrait with cross-cutting confidence (13 and 8), and the background pass (9) — so that the most valuable cognitive machinery runs and is validated earliest. These make up **Version 1**. **The rest then follows the existing plan:** canon, astro and temperament, onboarding, weighted facets with the Guardian, delivery, memory (**Version 2**); then voice, server, and the device (**Version 3**). As before, the whole brain lives first in a text TUI (Versions 1–2), then voice (v3 P1), then server and MongoDB (v3 P2), then the device (v3 P3); state is JSON through v3 P1 and Mongo from v3 P2, behind the same repository.
+The phase order is reprioritized by the consolidated review scores: **concepts scoring >= 8 are built first** — the planner (8), the conversation line (10), the portrait with cross-cutting confidence (13 and 8), and the background pass (9) — so that the most valuable cognitive machinery runs and is validated earliest. These make up **Version 0**. **The rest then follows the existing plan:** canon, astro and temperament, onboarding, weighted facets with the Guardian, delivery, memory (**Version 1**); then voice, server, and the device (**Version 2**). As before, the whole brain lives first in a text TUI (Versions 0–1), then voice (v2 P1), then server and MongoDB (v2 P2), then the device (v2 P3); state is JSON through v2 P1 and Mongo from v2 P2, behind the same repository.
 
 ```mermaid
 flowchart LR
-  subgraph V1["Version 1 — cognitive core (text)"]
+  subgraph V0["Version 0 — cognitive core (text)"]
     direction LR
     A0["P0 skeleton"] --> A1["P1 planner (8)"] --> A2["P2 line (10)"] --> A3["P3 portrait (13) + confidence (8)"] --> A4["P4 background (9)"]
   end
-  subgraph V2["Version 2 — personality layers (text)"]
+  subgraph V1["Version 1 — personality layers (text)"]
     direction LR
     B1["P1 canon"] --> B2["P2 astro + temperament"] --> B3["P3 onboarding"] --> B4["P4 facets + Guardian"] --> B5["P5 delivery"] --> B6["P6 memory"]
   end
-  subgraph V3["Version 3 — voice, server, device"]
+  subgraph V2["Version 2 — voice, server, device"]
     direction LR
     C1["P1 voice"] --> C2["P2 server + Mongo"] --> C3["P3 device"]
   end
@@ -33,7 +33,7 @@ flowchart LR
   B6 --> M2{{"All layers in text"}} --> C1
 ```
 
-**Reprioritization trade-off:** the early personality is thin in character and flat in delivery (a minimal placeholder canon and plain-text delivery), because canon, facets, onboarding, and mirroring are filled in during Version 2; safety is held by the minimal gate from v1 P0 until the full Guardian arrives at v2 P4.
+**Reprioritization trade-off:** the early personality is thin in character and flat in delivery (a minimal placeholder canon and plain-text delivery), because canon, facets, onboarding, and mirroring are filled in during Version 1; safety is held by the minimal gate from v0 P0 until the full Guardian arrives at v1 P4.
 
 Each phase is described by: goal; scope (what is added); modules; state; dependencies; tasks; definition of done.
 
@@ -41,7 +41,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 
 ## 2. Phases
 
-## Version 1 — Cognitive Core (concepts scoring >= 8, in text)
+## Version 0 — Cognitive Core (concepts scoring >= 8, in text)
 
 ### Phase 0 — Chat Skeleton (TUI)
 - **Goal:** a working text chat with the model.
@@ -53,7 +53,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
   - Scaffold the Python project: a `.venv` virtualenv and `pyproject.toml` for dependencies, with `ruff` (lint/format) and `pytest` (tests) configured.
   - Define the `Repository` interface and a first `json_store` implementation (load/save by document type).
   - Define the `contracts/` module and add a `schema_version` field to every persisted document, with migrate-on-read in the repository; export each document and contract to `architecture/schemas/` as JSON Schema (one file each, realized in the phase that builds it).
-  - Expose the brain through a single transport-agnostic `engine.handle_turn(session_id, input)`; make the TUI a thin adapter over it and keep session state in the repository, so the v3 P2 server/API is a later adapter rather than a rewrite.
+  - Expose the brain through a single transport-agnostic `engine.handle_turn(session_id, input)`; make the TUI a thin adapter over it and keep session state in the repository, so the v2 P2 server/API is a later adapter rather than a rewrite.
   - Stand up the `pytest` harness, including a headless replay path that drives turns through the repository with a mocked `llm`.
   - Implement the `llm` client over the Anthropic SDK (Opus), with streaming.
   - Build the TUI loop (input field, scrollable transcript, status line).
@@ -69,7 +69,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Scope:** perception (a Haiku classification), deterministic routing (simple -> Haiku, complex -> Opus), dispatch, a minimal turn plan; a TUI token/cost meter.
 - **Modules:** planner; telemetry (start); tui (token meter).
 - **State:** turn plan, telemetry.
-- **Dependencies:** v1 P0.
+- **Dependencies:** v0 P0.
 - **Tasks:**
   - Define the `PerceptionResult` and `TurnPlan` contracts in `contracts/` (schemas: `architecture/schemas/perception_result.schema.json`, `architecture/schemas/turn_plan.schema.json`).
   - Implement the perception call on Haiku returning structured JSON (topic, intent; emotion/modality added later).
@@ -86,7 +86,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Scope:** open loops, arc goals, phases, follow-ups (including cross-session), the initiative budget.
 - **Modules:** line, state (persistence).
 - **State:** conversation_line.
-- **Dependencies:** v1 P1. Delivery is a plain-text stub for now; full mirroring at v2 P5.
+- **Dependencies:** v0 P1. Delivery is a plain-text stub for now; full mirroring at v1 P5.
 - **Tasks:**
   - Define the open-loop record and its lifecycle (open/deferred/closed) with significance weight and intent owner (schema: `architecture/schemas/conversation_line.schema.json`).
   - Implement arc-goal stack and arc-phase tracking (opening -> ... -> closing).
@@ -101,7 +101,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Scope:** the two-layer portrait and the material box; confidence as a cross-cutting attribute; the modality filter in perception.
 - **Modules:** portrait, planner extension.
 - **State:** portrait, material; confidence on state elements.
-- **Dependencies:** v1 P1, v1 P2, and the minimal canon (v1 P0). Facet lenses are realized in the interpretation prompt for now; runtime weighted facets replace them at v2 P4.
+- **Dependencies:** v0 P1, v0 P2, and the minimal canon (v0 P0). Facet lenses are realized in the interpretation prompt for now; runtime weighted facets replace them at v1 P4.
 - **Tasks:**
   - Implement the observational layer (the material box appended each turn) (schema: `architecture/schemas/material.schema.json`).
   - Define the interpretive layer (hypotheses about the user's facets with confidence) (schema: `architecture/schemas/portrait.schema.json`).
@@ -116,7 +116,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Scope:** the async pass — policy validation + portrait growth + question generation into the bank; the curiosity cycle.
 - **Modules:** background.
 - **State:** question_bank, validation_log, updates to portrait and line.
-- **Dependencies:** v1 P3.
+- **Dependencies:** v0 P3.
 - **Tasks:**
   - Implement the asyncio background task and the material queue.
   - Implement policy validation (facets/strategy/classification/missed loops) with shadow and active modes (schema: `architecture/schemas/validation_log.schema.json`).
@@ -127,19 +127,19 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
   - Add selective triggering (uncertainty threshold, sampling, pauses).
 - **Definition of done:** the system self-corrects and asks curiosity-driven questions without blocking the response.
 
-**Milestone: the high-score concepts (score >= 8) work in text. End of Version 1.**
+**Milestone: the high-score concepts (score >= 8) work in text. End of Version 0.**
 
-## Version 2 — Personality Layers (in text)
+## Version 1 — Personality Layers (in text)
 
 ### Phase 1 — Layer 1: Character Core (Canon)
 - **Goal:** a stable character.
-- **Scope:** a hand-authored character bible compiled into a cached identity block; the invariants (expands the v1 P0 placeholder canon into the full bible).
+- **Scope:** a hand-authored character bible compiled into a cached identity block; the invariants (expands the v0 P0 placeholder canon into the full bible).
 - **Modules:** core.
 - **State:** canon.
-- **Dependencies:** v1 P1.
+- **Dependencies:** v0 P1.
 - **Tasks:**
   - Define the canon schema (all Layer 1 dimensions) (schema: `architecture/schemas/canon.schema.json`).
-  - Author the full character bible (replacing the v1 P0 placeholder).
+  - Author the full character bible (replacing the v0 P0 placeholder).
   - Compile the canon into a cached system-prompt prefix; wire prompt caching in `llm`.
   - Encode the hard invariants as a non-overridable prompt section.
   - Add a canon-loading path through the repository.
@@ -150,7 +150,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Scope:** natal (a fixed date for now) and transits via skyfield; the temperament dials in the prompt.
 - **Modules:** astro.
 - **State:** astro state (natal, daily transits).
-- **Dependencies:** v2 P1.
+- **Dependencies:** v1 P1.
 - **Tasks:**
   - Integrate skyfield; cache the ephemeris locally.
   - Compute the natal chart from a configured date.
@@ -158,14 +158,14 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
   - Map astro state to the five dials (energy, warmth, verbosity, imagination, caution).
   - Render a cached daily temperament block into the prompt; refresh once per day.
   - Verify the dials shift tone and verbosity in text.
-- **Definition of done:** tone and verbosity vary by day; prosodic fluctuation deferred to v3 P1.
+- **Definition of done:** tone and verbosity vary by day; prosodic fluctuation deferred to v2 P1.
 
 ### Phase 3 — Onboarding (Birth)
 - **Goal:** the character is born to fit the user.
 - **Scope:** candidate-date search by synastry (the user's birth date) and purpose; previews; selection; the canon seed.
 - **Modules:** astro (scoring), onboarding flow in tui.
 - **State:** users (birth date, synastry), updated canon.
-- **Dependencies:** v2 P2.
+- **Dependencies:** v1 P2.
 - **Tasks:**
   - Add a TUI onboarding flow collecting the user's birth data, purpose, and assistant gender/name/age (schema: `architecture/schemas/users.schema.json`).
   - Map purpose to a target archetype and a desired chart signature.
@@ -178,10 +178,10 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 
 ### Phase 4 — Layer 3: Weighted Facets and the Guardian
 - **Goal:** responses reflect weighted facets; an active safety gate.
-- **Scope:** facet definitions, the weight formula, one weighted Opus call; the Guardian as a separate synchronous check. Replaces the interim lens-in-prompt from v1 P3 with runtime weighted facets; activates the full Guardian (the minimal gate held since v1 P0).
+- **Scope:** facet definitions, the weight formula, one weighted Opus call; the Guardian as a separate synchronous check. Replaces the interim lens-in-prompt from v0 P3 with runtime weighted facets; activates the full Guardian (the minimal gate held since v0 P0).
 - **Modules:** facets, guardian.
 - **State:** facet weights in the turn plan.
-- **Dependencies:** v2 P1, v2 P2.
+- **Dependencies:** v1 P1, v1 P2.
 - **Tasks:**
   - Define the facet set and per-facet metadata (competency, goal, mode, archetype affinity).
   - Implement the weight formula (base affinity + topic relevance + temperament shift), clamped, with a threshold and max-active knob.
@@ -193,10 +193,10 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 
 ### Phase 5 — Layer 4: Delivery
 - **Goal:** style mirroring and a daily textual drift.
-- **Scope:** the style profile (moving average), the envelope, fluctuation of position-in-envelope and lexical color. Replaces the plain-text delivery stub from v1 P2.
+- **Scope:** the style profile (moving average), the envelope, fluctuation of position-in-envelope and lexical color. Replaces the plain-text delivery stub from v0 P2.
 - **Modules:** delivery.
 - **State:** style profile.
-- **Dependencies:** v1 P1, v2 P2.
+- **Dependencies:** v0 P1, v1 P2.
 - **Tasks:**
   - Implement the style profile (EMA of length, register, complexity, question density, language mix, impatience).
   - Derive the delivery envelope (target length, register) with partial convergence and a clarity floor.
@@ -210,23 +210,23 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Scope:** separation of session-scoped and long-term; consolidation of the local JSON store behind the repository.
 - **Modules:** state.
 - **State:** all documents with lifecycle policy.
-- **Dependencies:** v1 P2, v1 P3, v1 P4.
+- **Dependencies:** v0 P2, v0 P3, v0 P4.
 - **Tasks:**
   - Define lifecycle/retention policy per document (session vs. long-term).
   - Consolidate the JSON store; ensure atomic snapshot writes.
   - Implement merge of long-term baseline with session state on startup.
   - Handle privacy for the user's birth data (local, not exported).
   - Add migration-readiness checks for the eventual Mongo swap.
-- **Definition of done:** character and portrait survive restarts. **Milestone: all layers in text. End of Version 2.**
+- **Definition of done:** character and portrait survive restarts. **Milestone: all layers in text. End of Version 1.**
 
-## Version 3 — Voice, Server, and Device
+## Version 2 — Voice, Server, and Device
 
 ### Phase 1 — Voice: ASR + TTS
 - **Goal:** a voice conversation on the developer's machine.
 - **Scope:** Whisper (ASR) in, Piper-Ukrainian (TTS) out; prosodic fluctuation now active; barge-in.
 - **Modules:** io (asr, tts), delivery extension.
 - **State:** unchanged.
-- **Dependencies:** all layers (v2 P6).
+- **Dependencies:** all layers (v1 P6).
 - **Tasks:**
   - Integrate local Whisper (faster-whisper); expose transcript + optional prosody signals.
   - Integrate Piper-Ukrainian; expose synthesis parameters (rate, variation).
@@ -241,7 +241,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Scope:** a FastAPI + WebSocket server around the brain; the protocol; the filler for latency hiding; MongoDB as the repository implementation in place of JSON.
 - **Modules:** server, state (mongo_store).
 - **State:** migration JSON -> Mongo behind the same interface.
-- **Dependencies:** v3 P1.
+- **Dependencies:** v2 P1.
 - **Tasks:**
   - Implement `mongo_store` against the existing `Repository` interface.
   - Migrate existing JSON state into Mongo collections.
@@ -257,7 +257,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Scope:** AtomS3R with xiaozhi firmware pointed at our server; bidirectional Opus audio streaming.
 - **Modules:** device.
 - **State:** unchanged.
-- **Dependencies:** v3 P2.
+- **Dependencies:** v2 P2.
 - **Tasks:**
   - Flash xiaozhi firmware to AtomS3R + Echo Pyramid via M5Burner.
   - Point the device at our server's WebSocket/OTA endpoint.
@@ -274,27 +274,27 @@ The six high-priority improvements from the reviews, mapped to phases. Full impl
 
 | # | Improvement | Target phases | How (in brief) |
 |---|---|:--:|---|
-| 1 | Protect sensitive data | v1 P0, v2 P6 | Encrypt sensitive documents in `json_store` behind the `Repository` interface; redact in telemetry; delete on demand |
-| 2 | Route facts to self-check | v1 P1 | A `self_check` flag from perception; a conditional cheap verification call in dispatch |
-| 3 | Ablations and metrics | after v1 P4 | `config.ablation` flags; headless replay through `repository`; coherence/loop/contradiction metrics into telemetry (Haiku judge) |
-| 4 | Red-team the Influence-Strategist | v2 P4 | A "no manipulation in output" rule in the Guardian rubric; adversarial dialogues in the eval harness (from #3) |
-| 5 | Formalize weights and confidence | v1 P3, v1 P4, v2 P4 | Decay/reinforcement equations for confidence (`state/confidence.py`); explicit weight formula with tie-break; strategy utility learning |
-| 6 | Operationalize anti-dependency | after v1 P4, finalized v2 P4 | A risk indicator from telemetry; reduced initiative budget and question frequency; offline check-ins |
+| 1 | Protect sensitive data | v0 P0, v1 P6 | Encrypt sensitive documents in `json_store` behind the `Repository` interface; redact in telemetry; delete on demand |
+| 2 | Route facts to self-check | v0 P1 | A `self_check` flag from perception; a conditional cheap verification call in dispatch |
+| 3 | Ablations and metrics | after v0 P4 | `config.ablation` flags; headless replay through `repository`; coherence/loop/contradiction metrics into telemetry (Haiku judge) |
+| 4 | Red-team the Influence-Strategist | v1 P4 | A "no manipulation in output" rule in the Guardian rubric; adversarial dialogues in the eval harness (from #3) |
+| 5 | Formalize weights and confidence | v0 P3, v0 P4, v1 P4 | Decay/reinforcement equations for confidence (`state/confidence.py`); explicit weight formula with tie-break; strategy utility learning |
+| 6 | Operationalize anti-dependency | after v0 P4, finalized v1 P4 | A risk indicator from telemetry; reduced initiative budget and question frequency; offline check-ins |
 
-Recommended order: quick wins first (1 data protection, 2 fact self-check), then 3 ablations as the basis for 4 red-teaming, then 5 formalization and 6 anti-dependency (best after v1 P4, finalized with the full Guardian at v2 P4).
+Recommended order: quick wins first (1 data protection, 2 fact self-check), then 3 ablations as the basis for 4 red-teaming, then 5 formalization and 6 anti-dependency (best after v0 P4, finalized with the full Guardian at v1 P4).
 
 ---
 
 ## 4. Cross-Cutting Elements
 
-Not separate phases; they accompany all: confidence and the Guardian are designed into the state scaffolding from early phases (a minimal safety check from v1 P0, the full Guardian from v2 P4); telemetry from v1 P1; the state repository from v1 P0 (so v3 P2 changes only the implementation); the transport-agnostic `engine` boundary, the shared data contracts, and the versioned document schemas are established at v1 P0 so the v3 P2 API is a thin adapter; sensitive-data encryption at the repository layer from v1 P0 (refinement #1). Automated tests accompany every phase: each ships `pytest` unit tests for its new modules and extends the headless replay harness (stood up at v1 P0), and passing tests are an implicit definition-of-done for all phases.
+Not separate phases; they accompany all: confidence and the Guardian are designed into the state scaffolding from early phases (a minimal safety check from v0 P0, the full Guardian from v1 P4); telemetry from v0 P1; the state repository from v0 P0 (so v2 P2 changes only the implementation); the transport-agnostic `engine` boundary, the shared data contracts, and the versioned document schemas are established at v0 P0 so the v2 P2 API is a thin adapter; sensitive-data encryption at the repository layer from v0 P0 (refinement #1). Automated tests accompany every phase: each ships `pytest` unit tests for its new modules and extends the headless replay harness (stood up at v0 P0), and passing tests are an implicit definition-of-done for all phases.
 
 ---
 
 ## 5. Open Decisions
 
 - TUI library: Textual or a simpler start.
-- Whether to raise the minimal canon (v1 P0) and basic delivery earlier if the early thinness of character hinders testing.
-- Onboarding (v2 P3) early, or temporarily live with a fixed date.
-- Local ASR/TTS on the machine vs. cloud during v3 P1.
+- Whether to raise the minimal canon (v0 P0) and basic delivery earlier if the early thinness of character hinders testing.
+- Onboarding (v1 P3) early, or temporarily live with a fixed date.
+- Local ASR/TTS on the machine vs. cloud during v2 P1.
 - Background-pass cadence: shared between validation and portrait growth, or separated.

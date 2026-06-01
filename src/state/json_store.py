@@ -1,4 +1,4 @@
-"""Local JSON implementation of the Repository (Versions 1-2, v3 P1).
+"""Local JSON implementation of the Repository (Versions 0-1, v2 P1).
 
 Documents live at `{state_dir}/{doc_type}/{doc_id}.json`, UTF-8, one file per
 document. Writes are atomic (write-temp-then-rename) so a crash never leaves a

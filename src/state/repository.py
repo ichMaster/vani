@@ -2,7 +2,7 @@
 
 Every layer reads and writes state through this interface; no layer knows
 whether JSON or Mongo sits beneath it (architecture §4, §10). `json_store`
-backs it through v3 P1; `mongo_store` takes over at v3 P2.
+backs it through v2 P1; `mongo_store` takes over at v2 P2.
 """
 
 from __future__ import annotations

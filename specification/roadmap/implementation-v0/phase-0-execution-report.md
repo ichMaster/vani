@@ -1,4 +1,4 @@
-# Version 1, Phase 0 — Execution Report
+# Version 0, Phase 0 — Execution Report
 
 **Date:** 2026-06-01
 **Branch:** main
@@ -66,4 +66,4 @@ All 10 issues implemented in dependency order, each validated (`ruff` + `pytest`
 
 ## Next Steps
 
-Version 1, Phase 1 (Planner Skeleton and Tiers) — issues VANI-011..018 in `phase-1-issues.md`. Depends on this phase (engine, llm, repository, contracts, TUI, telemetry scaffolding all in place). First up: `VANI-011` (PerceptionResult + TurnPlan contracts).
+Version 0, Phase 1 (Planner Skeleton and Tiers) — issues VANI-011..018 in `phase-1-issues.md`. Depends on this phase (engine, llm, repository, contracts, TUI, telemetry scaffolding all in place). First up: `VANI-011` (PerceptionResult + TurnPlan contracts).

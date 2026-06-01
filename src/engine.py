@@ -4,7 +4,7 @@ Every surface (TUI now; voice and server later) drives the brain through
 `Engine.handle_turn`; the engine imports no transport code. All per-session
 state lives in the repository keyed by `session_id` — the engine holds only its
 injected dependencies, never session state — so one engine serves many sessions
-and the v3 server/API is a thin adapter rather than a rewrite.
+and the v2 server/API is a thin adapter rather than a rewrite.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from src.guardian.guardrail import Guardian, MinimalGuardian
 from src.llm.client import LLMClient
 from src.state.repository import Repository
 
-# Minimal placeholder identity; replaced by the compiled canon at VANI-008 / v2 P1.
+# Minimal placeholder identity; replaced by the compiled canon at VANI-008 / v1 P1.
 DEFAULT_SYSTEM = "You are Vani, a warm and concise companion. Reply briefly and kindly."
 
 

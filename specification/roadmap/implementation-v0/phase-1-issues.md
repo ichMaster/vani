@@ -1,21 +1,21 @@
-# Version 1, Phase 1 — Planner Skeleton and Tiers: GitHub Issues
+# Version 0, Phase 1 — Planner Skeleton and Tiers: GitHub Issues
 
-Decomposes roadmap `v1 P1` into implementable issues. IDs continue Version 1 numbering (`VANI-011`…). Labels follow the `upload-issues` skill: `p1::phase:1`, `p1::size:*`, `p1::stage:*`.
+Decomposes roadmap `v0 P1` into implementable issues. IDs continue Version 0 numbering (`VANI-011`…). Labels follow the `upload-issues` skill: `p1::phase:1`, `p1::size:*`, `p1::stage:*`.
 
-**Phase prerequisite:** v1 P0 complete (VANI-001–010) — in particular the engine (VANI-005), the `llm` client (VANI-004), the repository/contracts (VANI-002, VANI-003), the TUI (VANI-006), and telemetry scaffolding (VANI-009).
+**Phase prerequisite:** v0 P0 complete (VANI-001–010) — in particular the engine (VANI-005), the `llm` client (VANI-004), the repository/contracts (VANI-002, VANI-003), the TUI (VANI-006), and telemetry scaffolding (VANI-009).
 
 ## Issues Summary Table
 
 | # | ID | Title | Size | Stage | Dependencies |
 |---|---|---|---|---|---|
-| 1 | VANI-011 | Pipeline contracts: PerceptionResult and TurnPlan | S | 1 — Contracts | VANI-003 (v1 P0) |
-| 2 | VANI-012 | Perception step (Haiku classification) | M | 2 — Pipeline | VANI-011, VANI-004 (v1 P0) |
+| 1 | VANI-011 | Pipeline contracts: PerceptionResult and TurnPlan | S | 1 — Contracts | VANI-003 (v0 P0) |
+| 2 | VANI-012 | Perception step (Haiku classification) | M | 2 — Pipeline | VANI-011, VANI-004 (v0 P0) |
 | 3 | VANI-013 | Deterministic router (simple vs. deep) | S | 2 — Pipeline | VANI-011 |
 | 4 | VANI-014 | Dispatch and post-update hook | M | 2 — Pipeline | VANI-012, VANI-013 |
 | 5 | VANI-015 | LLM failure handling in dispatch | S | 3 — Robustness & LLM | VANI-014 |
-| 6 | VANI-016 | Prompt-prefix assembly in llm | S | 3 — Robustness & LLM | VANI-004 (v1 P0) |
-| 7 | VANI-017 | Per-turn telemetry | S | 4 — Observability | VANI-014, VANI-009 (v1 P0) |
-| 8 | VANI-018 | TUI token/cost calculator | S | 4 — Observability | VANI-017, VANI-006 (v1 P0) |
+| 6 | VANI-016 | Prompt-prefix assembly in llm | S | 3 — Robustness & LLM | VANI-004 (v0 P0) |
+| 7 | VANI-017 | Per-turn telemetry | S | 4 — Observability | VANI-014, VANI-009 (v0 P0) |
+| 8 | VANI-018 | TUI token/cost calculator | S | 4 — Observability | VANI-017, VANI-006 (v0 P0) |
 
 **Size legend:** S = 1–2 days, M = 3–5 days, L = 5–8 days
 
@@ -24,22 +24,22 @@ Decomposes roadmap `v1 P1` into implementable issues. IDs continue Version 1 num
 ## Dependency Tree
 
 ```
-VANI-011 (contracts) --+-- VANI-012 (perception)  <- VANI-004 (v1 P0)
+VANI-011 (contracts) --+-- VANI-012 (perception)  <- VANI-004 (v0 P0)
                        |-- VANI-013 (router)
                               \
    VANI-012 + VANI-013 --------> VANI-014 (dispatch + post-update)
                                     |-- VANI-015 (failure handling)
-                                    |-- VANI-017 (telemetry) <- VANI-009 (v1 P0)
+                                    |-- VANI-017 (telemetry) <- VANI-009 (v0 P0)
                                               \
-                                               VANI-018 (TUI token meter) <- VANI-006 (v1 P0)
+                                               VANI-018 (TUI token meter) <- VANI-006 (v0 P0)
 
-VANI-016 (prompt-prefix assembly) <- VANI-004 (v1 P0)   [independent track]
+VANI-016 (prompt-prefix assembly) <- VANI-004 (v0 P0)   [independent track]
 ```
 
 **Parallelization hints:**
 
 - VANI-013 and VANI-012 can run in parallel after VANI-011.
-- VANI-016 is independent and can run any time after v1 P0.
+- VANI-016 is independent and can run any time after v0 P0.
 - VANI-015, VANI-017 run after VANI-014; VANI-018 runs after VANI-017.
 
 ---
@@ -53,11 +53,11 @@ The two in-memory contracts that flow through the per-turn pipeline (architectur
 
 **What needs to be done:**
 - Add `PerceptionResult` and `TurnPlan` to `contracts/` (serializable; architecture §9).
-- `PerceptionResult`: topic, intent, emotion, modality, style signals — each with confidence (`architecture/schemas/perception_result.schema.json`). For P1, only topic + intent are populated (emotion/modality arrive at v1 P3); keep the fields present.
+- `PerceptionResult`: topic, intent, emotion, modality, style signals — each with confidence (`architecture/schemas/perception_result.schema.json`). For P1, only topic + intent are populated (emotion/modality arrive at v0 P3); keep the fields present.
 - `TurnPlan`: route (simple/deep), strategy, facet weights, target length, filler, confirmation, conversation-line action (`architecture/schemas/turn_plan.schema.json`). For P1, populate route + a minimal plan; richer fields fill in later phases.
 - Keep both in sync with their JSON Schema (schema-drift test from VANI-003).
 
-**Dependencies:** VANI-003 (v1 P0)
+**Dependencies:** VANI-003 (v0 P0)
 
 **Expected result:**
 Two validated, serializable contracts the rest of the pipeline depends on.
@@ -79,11 +79,11 @@ The only LLM call at the input: a single Haiku call that reads the message and r
 
 **What needs to be done:**
 - Implement the perception call in `planner/` using the Haiku tier of the `llm` client (extend VANI-004 to support Haiku).
-- Return structured JSON parsed into `PerceptionResult`: topic, intent (emotion/modality added at v1 P3).
+- Return structured JSON parsed into `PerceptionResult`: topic, intent (emotion/modality added at v0 P3).
 - Attach a confidence to each field.
 - Make the call mockable for the headless replay harness.
 
-**Dependencies:** VANI-011, VANI-004 (v1 P0)
+**Dependencies:** VANI-011, VANI-004 (v0 P0)
 
 **Expected result:**
 A structured perception result produced by one Haiku call per turn.
@@ -176,9 +176,9 @@ Assemble the prompt as a cached prefix + fresh suffix so caching and cost contro
 **What needs to be done:**
 - In `llm/`, assemble prompts as: cached prefix (system/identity block — the placeholder canon from VANI-008) + fresh suffix (turn plan context + recent transcript).
 - Wire Anthropic prompt caching on the prefix (cache the system block).
-- Keep the seam for the daily-temperament block (added at v2 P2).
+- Keep the seam for the daily-temperament block (added at v1 P2).
 
-**Dependencies:** VANI-004 (v1 P0)
+**Dependencies:** VANI-004 (v0 P0)
 
 **Expected result:**
 A prefix/suffix prompt structure with the system block cached, ready for the full canon later.
@@ -187,7 +187,7 @@ A prefix/suffix prompt structure with the system block cached, ready for the ful
 - [ ] Prompts are assembled as cached prefix + fresh suffix
 - [ ] The system block is sent with prompt caching enabled
 - [ ] Cache reads are visible in token usage/telemetry
-- [ ] Structure leaves a clear slot for the temperament block (v2 P2)
+- [ ] Structure leaves a clear slot for the temperament block (v1 P2)
 
 ---
 
@@ -203,7 +203,7 @@ Emit a telemetry record per turn into the sink scaffolded at VANI-009 (spec §20
 - Conform to `architecture/schemas/telemetry.schema.json`.
 - Redact sensitive fields (refinement #1).
 
-**Dependencies:** VANI-014, VANI-009 (v1 P0)
+**Dependencies:** VANI-014, VANI-009 (v0 P0)
 
 **Expected result:**
 Every turn produces a structured, schema-conformant telemetry record.
@@ -219,14 +219,14 @@ Every turn produces a structured, schema-conformant telemetry record.
 ### VANI-018 — TUI token/cost calculator
 
 **Description:**
-Surface token usage and estimated cost in the TUI status line, derived from telemetry (roadmap v1 P1).
+Surface token usage and estimated cost in the TUI status line, derived from telemetry (roadmap v0 P1).
 
 **What needs to be done:**
 - Add a token/cost meter to the TUI status line: per-turn and cumulative token counts (Haiku vs. Opus, cache reads) and an estimated cost.
 - Source the numbers from the telemetry records (VANI-017) — the TUI does not call the `llm` directly.
 - Make per-tier prices config-driven (`config/`) so cost estimates can be updated.
 
-**Dependencies:** VANI-017, VANI-006 (v1 P0)
+**Dependencies:** VANI-017, VANI-006 (v0 P0)
 
 **Expected result:**
 A live token/cost readout in the TUI for each turn and the session total.

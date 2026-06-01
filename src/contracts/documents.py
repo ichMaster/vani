@@ -74,7 +74,7 @@ def migrate(doc_type: str, raw: Document) -> Document:
     """Upgrade a raw document to the current `schema_version` (migrate-on-read).
 
     The seam for forward-compatible schema evolution: each future version adds
-    an upgrade step keyed on the stored version. Version 1 introduces no
+    an upgrade step keyed on the stored version. Version 0 introduces no
     upgrades yet, so it only stamps the current version onto older or
     unversioned documents.
     """

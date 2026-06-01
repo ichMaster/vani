@@ -2,7 +2,33 @@
 
 **A living-personality voice companion.** Vani is designed not as a "query → response" function but as a single, coherent presence: it is born to fit the user at onboarding, has a stable character, wakes with a daily mood, adapts its manner to the user, carries a running conversation, and builds a model of the person over time — yet always speaks as one voice.
 
-> **Status: specification only.** This repository currently holds the design documents. There is no implementation code yet — the system is planned in Python (see the roadmap). The first build task is the `v1 P0` skeleton.
+> **Status: early build (v0.0.1).** Version 1, Phase 0 — the local text-chat skeleton — is implemented under `src/`: a transport-agnostic brain (`engine`), the repository + JSON store, versioned data contracts, a streaming Anthropic client, a synchronous guardrail, a placeholder canon, telemetry, and a Textual TUI. The remaining phases (planner, personality layers, voice, server, device) are still design documents — see the [roadmap](specification/roadmap/roadmap-v0.2.en.md).
+
+## Getting started
+
+Requires **Python 3.11+** and an **Anthropic API key**.
+
+```bash
+git clone https://github.com/ichMaster/vani.git
+cd vani
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+
+cp .env.example .env            # then add your key to .env:
+#   ANTHROPIC_API_KEY=sk-ant-...
+
+vani                            # launch the text chat (TUI)
+```
+
+The API key is read from `.env` (gitignored) or the environment — a real env var wins over `.env`. Conversation history is stored locally under `.vani_state/`.
+
+### Development
+
+```bash
+pytest            # run the test suite (incl. a headless, network-free replay)
+ruff check .      # lint
+ruff format .     # format
+```
 
 ## The idea
 
@@ -38,11 +64,15 @@ Background reading: [the concept article](specification/missions/vani-article.en
 ## Repository layout
 
 ```
+src/                      # the application (v1 P0): engine, state, contracts, llm,
+                          #   guardian, core, telemetry, config, tui, app
+tests/                    # pytest suite (unit) + replay/ (headless harness)
+pyproject.toml            # deps + ruff/pytest config; `vani` entry point
 specification/            # English design documents
   requirements/           # the master specification ("what")
   architecture/           # solution architecture ("how")
     schemas/              # JSON Schema for state documents + pipeline contracts
-  roadmap/                # implementation roadmap ("when")
+  roadmap/                # implementation roadmap ("when") + implementation-v1/ issues
   missions/               # the long-form concept article
 docs/
   requirements_ukr/       # Ukrainian originals (.uk.md / .uk.docx)
@@ -51,9 +81,10 @@ docs/
 
 The documents exist in **English** (`specification/`) and **Ukrainian** (`docs/requirements_ukr/`); English is authoritative. When changing a spec, update both and bump the version in the header.
 
-## Planned tech stack
+## Tech stack
 
-- **Versions 1–2 and v3 P1 (local):** Python (`.venv` + `pyproject.toml`), `pytest` + `ruff`, Textual (TUI), the Anthropic SDK (Haiku/Opus), a local LLM fallback (Gemma/Qwen) for offline turns, skyfield (astro), asyncio, local JSON state; from v3 P1, Whisper (ASR) + Piper-Ukrainian (TTS).
+- **In place (v1 P0, local):** Python 3.11+ (`.venv` + `pyproject.toml`), Textual (TUI), the Anthropic SDK, `python-dotenv`, local JSON state, `pytest` + `ruff`.
+- **Planned for the rest of Versions 1–2 and v3 P1 (local):** skyfield (astro), a local LLM fallback (Gemma/Qwen) for offline turns; from v3 P1, Whisper (ASR) + Piper-Ukrainian (TTS).
 - **v3 P2:** FastAPI + WebSocket server, MongoDB.
 - **v3 P3:** AtomS3R + Echo Pyramid with xiaozhi firmware, Opus audio codec.
 

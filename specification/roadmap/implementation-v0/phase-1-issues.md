@@ -78,7 +78,7 @@ Two validated, serializable contracts the rest of the pipeline depends on.
 The only LLM call at the input: a single Haiku call that reads the message and returns a structured `PerceptionResult` (spec §9.2 step 1). It does not reply to the user.
 
 **What needs to be done:**
-- Implement the perception call in `planner/` using the Haiku tier of the `llm` client (extend VANI-004 to support Haiku).
+- Implement the perception call in `planner/` using the `llm` client's Haiku tier (already supported via `tier="haiku"` since v0 P0).
 - Return structured JSON parsed into `PerceptionResult`: topic, intent (emotion/modality added at v0 P3).
 - Attach a confidence to each field.
 - Make the call mockable for the headless replay harness.
@@ -125,9 +125,10 @@ A transparent, tunable routing decision recorded in the turn plan.
 Execute the routed turn (Haiku directly, or one Opus call), then run the deterministic post-update that feeds state back for the next turn (spec §9.2 steps 4–5).
 
 **What needs to be done:**
-- Implement dispatch for both routes in the engine/planner: simple → Haiku generates; deep → one Opus call.
-- Pass the candidate through the synchronous guardrail (VANI-007) before display.
-- Implement the post-update hook: persist the turn, update minimal state via the repository.
+- Insert perception + routing into the existing gated turn loop (`engine.handle_turn` already buffers the reply, gates it through the Guardian, and persists the turn since v0 P0).
+- Branch dispatch on the route: simple → Haiku generates; deep → one Opus call.
+- Keep the synchronous guardrail before display (already in place from VANI-007, v0 P0).
+- Extend the post-update hook to record the route / turn plan alongside the persisted turn.
 - Confirm a deep turn makes exactly two LLM calls (one Haiku perception + one Opus generation).
 
 **Dependencies:** VANI-012, VANI-013
@@ -171,7 +172,7 @@ Dispatch survives LLM timeouts and connectivity loss without crashing or corrupt
 ### VANI-016 — Prompt-prefix assembly in llm
 
 **Description:**
-Assemble the prompt as a cached prefix + fresh suffix so caching and cost control work from early on (architecture §11). The full canon/temperament caching arrives at v2; P1 lays the structure with a placeholder system block.
+Assemble the prompt as a cached prefix + fresh suffix so caching and cost control work from early on (architecture §11). The full canon/temperament caching arrives at v1; P1 lays the structure with a placeholder system block.
 
 **What needs to be done:**
 - In `llm/`, assemble prompts as: cached prefix (system/identity block — the placeholder canon from VANI-008) + fresh suffix (turn plan context + recent transcript).

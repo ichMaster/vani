@@ -20,6 +20,7 @@
             "type": "object",
             "properties": {
               "time_to_first_audio": { "type": "number" },
+              "time_to_first_token": { "type": "number" },
               "filler_start": { "type": "number" },
               "perception": { "type": "number" },
               "generation": { "type": "number" }

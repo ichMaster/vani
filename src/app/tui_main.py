@@ -16,13 +16,14 @@ def main() -> None:
     from src.engine import Engine
     from src.llm.client import AnthropicClient
     from src.state.json_store import JsonStore
+    from src.telemetry.logging import TelemetrySink
     from src.tui.app import run_tui
 
     config = Config.load()
     repository = JsonStore(config.state_dir, migrator=migrate)
     llm = AnthropicClient(config)
     identity = compile_identity_prompt(load_canon(repository))
-    engine = Engine(repository, llm, system_prompt=identity)
+    engine = Engine(repository, llm, system_prompt=identity, telemetry=TelemetrySink(repository))
     run_tui(engine)
 
 

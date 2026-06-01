@@ -43,15 +43,23 @@ def _as_confident(raw: object, default_conf: float = 0.5) -> Confident[str]:
     return Confident(str(raw), default_conf)
 
 
-async def perceive(llm: LLMClient, messages: list[Message]) -> PerceptionResult:
-    """Classify the latest message via one Haiku call; fall back safely on bad output."""
-    completion = await llm.complete(system=PERCEPTION_SYSTEM, messages=messages, tier="haiku")
+def parse_perception(text: str) -> PerceptionResult:
+    """Parse the model's classification JSON into a PerceptionResult, safely.
+
+    On malformed output, returns a low-confidence fallback — the planner treats
+    that as "ask again / be cautious".
+    """
     try:
-        data = _extract_json(completion.text)
+        data = _extract_json(text)
         return PerceptionResult(
             topic=_as_confident(data["topic"]),
             intent=_as_confident(data["intent"]),
         )
     except (ValueError, KeyError, TypeError, json.JSONDecodeError):
-        # Low-confidence fallback — the planner treats this as "ask again / be cautious".
         return PerceptionResult(topic=Confident("unknown", 0.0), intent=Confident("unknown", 0.0))
+
+
+async def perceive(llm: LLMClient, messages: list[Message]) -> PerceptionResult:
+    """Classify the latest message via one Haiku call."""
+    completion = await llm.complete(system=PERCEPTION_SYSTEM, messages=messages, tier="haiku")
+    return parse_perception(completion.text)

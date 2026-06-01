@@ -10,17 +10,20 @@ and the v2 server/API is a thin adapter rather than a rewrite.
 from __future__ import annotations
 
 import asyncio
+import time
 from collections.abc import Callable
+from datetime import UTC, datetime
 
 from src.config.config import Config
 from src.contracts.confidence import Confident
 from src.contracts.documents import Session, Turn
 from src.contracts.pipeline import PerceptionResult
 from src.guardian.guardrail import Guardian, MinimalGuardian
-from src.llm.client import LLMClient
-from src.planner.perception import perceive
+from src.llm.client import LLMClient, Usage
+from src.planner.perception import PERCEPTION_SYSTEM, parse_perception
 from src.planner.router import make_plan
 from src.state.repository import Repository
+from src.telemetry.logging import TelemetrySink
 
 # Minimal placeholder identity; replaced by the compiled canon at VANI-008 / v1 P1.
 DEFAULT_SYSTEM = "You are Vani, a warm and concise companion. Reply briefly and kindly."
@@ -47,6 +50,7 @@ class Engine:
         user_id: str = "local",
         guardian: Guardian | None = None,
         config: Config | None = None,
+        telemetry: TelemetrySink | None = None,
     ) -> None:
         self._repo = repository
         self._llm = llm
@@ -54,6 +58,7 @@ class Engine:
         self._user_id = user_id
         self._guardian = guardian or MinimalGuardian()
         self._config = config or Config()
+        self._telemetry = telemetry
 
     def _load_session(self, session_id: str) -> Session:
         raw = self._repo.load("sessions", session_id)
@@ -89,26 +94,46 @@ class Engine:
 
         # 1. Perception (Haiku) -> 2. Decision (deterministic route). A failed
         # perception degrades to a low-confidence read (which routes to deep).
+        p_start = time.perf_counter()
         try:
-            perception = await perceive(self._llm, messages)
+            pc = await self._llm.complete(system=PERCEPTION_SYSTEM, messages=messages, tier="haiku")
+            perception = parse_perception(pc.text)
+            perception_usage = pc.usage
         except Exception:
             perception = PerceptionResult(
                 topic=Confident("unknown", 0.0), intent=Confident("unknown", 0.0)
             )
+            perception_usage = Usage()
+        perception_ms = (time.perf_counter() - p_start) * 1000
         plan = make_plan(perception, self._config)
 
         # 3. Dispatch on the route (with retry/backoff), then 4. the Guardian gate.
-        text = await self._generate(messages, _TIER_FOR_ROUTE[plan.route], on_delta)
+        g_start = time.perf_counter()
+        text, generation_usage = await self._generate(
+            messages, _TIER_FOR_ROUTE[plan.route], on_delta
+        )
+        generation_ms = (time.perf_counter() - g_start) * 1000
         verdict = self._guardian.check(text)
         reply = verdict.output
         if on_delta is not None:
             on_delta(reply)
 
-        # 5. Post-update: persist the turn, recording the route taken.
-        session.turns.append(
-            Turn(turn_id=f"t{len(session.turns)}", role="assistant", text=reply, route=plan.route)
-        )
+        # 5. Post-update: persist the turn (with route), then record telemetry.
+        turn_id = f"t{len(session.turns)}"
+        session.turns.append(Turn(turn_id=turn_id, role="assistant", text=reply, route=plan.route))
         self._save_session(session)
+        if self._telemetry is not None:
+            self._telemetry.record(
+                _turn_event(
+                    turn_id,
+                    plan.route,
+                    perception_ms,
+                    generation_ms,
+                    perception_usage,
+                    generation_usage,
+                    verdict.outcome,
+                )
+            )
         return reply
 
     async def _generate(
@@ -116,11 +141,12 @@ class Engine:
         messages: list[dict[str, str]],
         tier: str,
         on_delta: Callable[[str], None] | None,
-    ) -> str:
+    ) -> tuple[str, Usage]:
         """Generate the reply, retrying transient LLM failures with backoff.
 
         On a transient error it emits a short filler and retries; once retries
         are exhausted it returns an honest fallback message rather than crash.
+        Returns the reply text and the generation token usage.
         """
         delay = self._config.llm_retry_base_delay
         for attempt in range(self._config.llm_max_retries + 1):
@@ -128,11 +154,50 @@ class Engine:
                 completion = await self._llm.complete(
                     system=self._system, messages=messages, tier=tier
                 )
-                return completion.text
+                return completion.text, completion.usage
             except Exception:
                 if attempt < self._config.llm_max_retries:
                     if on_delta is not None:
                         on_delta(RETRY_FILLER)
                     await asyncio.sleep(delay)
                     delay *= 2
-        return GENERATION_FALLBACK
+        return GENERATION_FALLBACK, Usage()
+
+
+def _turn_event(
+    turn_id: str,
+    route: str,
+    perception_ms: float,
+    generation_ms: float,
+    perception_usage: Usage,
+    generation_usage: Usage,
+    guardian_outcome: str,
+) -> dict:
+    """Build a per-turn telemetry event (telemetry.schema.json). No message text."""
+    usage = {
+        "haiku_input": 0,
+        "haiku_output": 0,
+        "opus_input": 0,
+        "opus_output": 0,
+        "cache_read": 0,
+    }
+    # Perception is always a Haiku call.
+    usage["haiku_input"] += perception_usage.input_tokens
+    usage["haiku_output"] += perception_usage.output_tokens
+    usage["cache_read"] += perception_usage.cache_read_tokens
+    # Generation is on the route's tier.
+    gen_tier = "haiku" if route == "simple" else "opus"
+    usage[f"{gen_tier}_input"] += generation_usage.input_tokens
+    usage[f"{gen_tier}_output"] += generation_usage.output_tokens
+    usage["cache_read"] += generation_usage.cache_read_tokens
+    return {
+        "turn_id": turn_id,
+        "timestamp": datetime.now(UTC).isoformat(),
+        "route": route,
+        "latency_ms": {
+            "perception": round(perception_ms, 1),
+            "generation": round(generation_ms, 1),
+        },
+        "token_usage": usage,
+        "metrics": {"guardian_outcome": guardian_outcome},
+    }

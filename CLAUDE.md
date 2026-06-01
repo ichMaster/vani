@@ -48,6 +48,18 @@ Each English doc has a Ukrainian original under `docs/requirements_ukr/` (`.uk.m
 
 The roadmap is **reprioritized by review scores**, not by dependency-natural order: the high-value cognitive machinery (planner, conversation line, portrait+confidence, background pass — Version 1, v1 P1–P4) is built *before* canon, astro, onboarding, facets, and delivery (Version 2, v2 P1–P5). Consequence: early phases run with a thin placeholder canon, plain-text delivery, and only a minimal safety gate; these are filled in during Version 2 (the full Guardian arrives at v2 P4). Check the current version and phase before assuming a layer is fully implemented.
 
+## Versioning convention
+
+Release versions are `a.b.c`:
+
+- **`a` — global version:** the delivery Version from the roadmap (1, 2, or 3).
+- **`b` — phase:** the phase number within that version (P0, P1, …).
+- **`c` — fix:** incremented for fixes/patches released after that phase shipped.
+
+So each phase milestone is `a.b.0`, and post-phase fixes bump `c`. Examples: v1 P0 → `1.0.0`; v1 P1 → `1.1.0`; a fix after v1 P1 → `1.1.1`; v2 P3 → `2.3.0`; v3 P3 → `3.3.0`.
+
+Note: the initial bootstrap tags (`0.0.1`, `0.1.0`) predate this convention; it applies from here. (The `execute-issues` skill's older "Phase N → 0.N.0" note is superseded by this scheme.)
+
 ## Planned tech stack (per architecture §8)
 
 - **Versions 1–2 and v3 P1 (local):** Python, Textual (TUI), Anthropic SDK (Haiku/Opus), skyfield/kerykeion (astro charts), asyncio, local JSON state. From v3 P1: faster-whisper (ASR) + Piper-Ukrainian (TTS).

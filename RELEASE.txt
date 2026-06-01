@@ -1,3 +1,10 @@
+Version 0.1.0 (2026-06-01)
+---------------------------
+- Load ANTHROPIC_API_KEY from a local .env (precedence: env var > .env > default).
+- README: updated status and added getting-started / run instructions.
+- Add the v1 Phase 0 implementation guide (docs/implementation/v1-phase-0.md).
+- Add the v1 Phase 0 execution report.
+
 Version 0.0.1 (2026-06-01)
 ---------------------------
 Version 1, Phase 0 — Chat Skeleton (TUI). The first working build: a local,

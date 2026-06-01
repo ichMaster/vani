@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "voice-companion"
-version = "0.0.1"
+version = "0.1.0"
 description = "Vani — a living-personality voice companion (Version 1, local text build)"
 readme = "README.md"
 requires-python = ">=3.11"

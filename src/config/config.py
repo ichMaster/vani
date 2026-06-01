@@ -31,6 +31,10 @@ class Config:
     route_confidence_floor: float = 0.4
     route_arousal_ceiling: float = 0.66
 
+    # LLM failure handling (VANI-015): retries on transient errors + backoff base (seconds).
+    llm_max_retries: int = 2
+    llm_retry_base_delay: float = 0.5
+
     @classmethod
     def load(cls, *, env_file: str | Path | None = None, **overrides: object) -> Config:
         """Build a Config from env vars and a `.env` file, applying explicit overrides.

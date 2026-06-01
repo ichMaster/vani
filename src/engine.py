@@ -9,10 +9,13 @@ and the v2 server/API is a thin adapter rather than a rewrite.
 
 from __future__ import annotations
 
+import asyncio
 from collections.abc import Callable
 
 from src.config.config import Config
+from src.contracts.confidence import Confident
 from src.contracts.documents import Session, Turn
+from src.contracts.pipeline import PerceptionResult
 from src.guardian.guardrail import Guardian, MinimalGuardian
 from src.llm.client import LLMClient
 from src.planner.perception import perceive
@@ -24,6 +27,12 @@ DEFAULT_SYSTEM = "You are Vani, a warm and concise companion. Reply briefly and 
 
 # Generation tier per route: simple turns answer on Haiku, deep turns on Opus.
 _TIER_FOR_ROUTE = {"simple": "haiku", "deep": "opus"}
+
+# Degradation messages (spec §15). The local-LLM offline fallback comes later.
+RETRY_FILLER = "(one moment…)"
+GENERATION_FALLBACK = (
+    "I'm having trouble reaching my brain right now — give me a moment and try again."
+)
 
 
 class Engine:
@@ -78,15 +87,19 @@ class Engine:
         session.turns.append(Turn(turn_id=f"t{len(session.turns)}", role="user", text=user_input))
         messages = [{"role": t.role, "content": t.text} for t in session.turns]
 
-        # 1. Perception (Haiku) -> 2. Decision (deterministic route).
-        perception = await perceive(self._llm, messages)
+        # 1. Perception (Haiku) -> 2. Decision (deterministic route). A failed
+        # perception degrades to a low-confidence read (which routes to deep).
+        try:
+            perception = await perceive(self._llm, messages)
+        except Exception:
+            perception = PerceptionResult(
+                topic=Confident("unknown", 0.0), intent=Confident("unknown", 0.0)
+            )
         plan = make_plan(perception, self._config)
 
-        # 3. Dispatch on the route, then 4. the synchronous Guardian gate.
-        completion = await self._llm.complete(
-            system=self._system, messages=messages, tier=_TIER_FOR_ROUTE[plan.route]
-        )
-        verdict = self._guardian.check(completion.text)
+        # 3. Dispatch on the route (with retry/backoff), then 4. the Guardian gate.
+        text = await self._generate(messages, _TIER_FOR_ROUTE[plan.route], on_delta)
+        verdict = self._guardian.check(text)
         reply = verdict.output
         if on_delta is not None:
             on_delta(reply)
@@ -97,3 +110,29 @@ class Engine:
         )
         self._save_session(session)
         return reply
+
+    async def _generate(
+        self,
+        messages: list[dict[str, str]],
+        tier: str,
+        on_delta: Callable[[str], None] | None,
+    ) -> str:
+        """Generate the reply, retrying transient LLM failures with backoff.
+
+        On a transient error it emits a short filler and retries; once retries
+        are exhausted it returns an honest fallback message rather than crash.
+        """
+        delay = self._config.llm_retry_base_delay
+        for attempt in range(self._config.llm_max_retries + 1):
+            try:
+                completion = await self._llm.complete(
+                    system=self._system, messages=messages, tier=tier
+                )
+                return completion.text
+            except Exception:
+                if attempt < self._config.llm_max_retries:
+                    if on_delta is not None:
+                        on_delta(RETRY_FILLER)
+                    await asyncio.sleep(delay)
+                    delay *= 2
+        return GENERATION_FALLBACK

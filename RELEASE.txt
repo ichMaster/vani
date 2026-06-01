@@ -1,0 +1,15 @@
+Version 0.0.1 (2026-06-01)
+---------------------------
+Version 1, Phase 0 — Chat Skeleton (TUI). The first working build: a local,
+streaming text chat with a transport-agnostic brain, behind clean contracts.
+
+- VANI-001 Project scaffold and tooling: src/ package, pyproject (.venv, ruff, pytest), config loader, entry point.
+- VANI-002 Repository interface and json_store: single state-access point with atomic JSON persistence and a cipher hook.
+- VANI-003 Data contracts and versioned schemas: Session/Turn models, schema_version + migrate-on-read, JSON Schema validation.
+- VANI-004 LLM client (Opus, streaming): Anthropic client behind a mockable LLMClient protocol with token usage.
+- VANI-005 Transport-agnostic engine: Engine.handle_turn over the repository (no globals), the seam for the v3 API.
+- VANI-006 TUI loop and transcript persistence: Textual chat adapter that reloads history and streams replies.
+- VANI-007 Minimal guardrail pass: synchronous placeholder Guardian; output is gated before it reaches the UI.
+- VANI-008 Placeholder canon and confidence scaffolding: a minimal identity compiled into the system prompt; Confident[T].
+- VANI-009 Logging and telemetry scaffolding: structured logger and a redacting, repository-backed telemetry sink.
+- VANI-010 pytest harness and headless replay: shared fixtures and a network-free replay of full conversations.

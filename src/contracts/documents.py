@@ -8,7 +8,7 @@ the repository migrates older documents forward on read.
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from typing import Any
 
 Document = dict[str, Any]
@@ -25,13 +25,22 @@ class Turn:
     turn_id: str
     role: str  # "user" | "assistant"
     text: str = ""
+    route: str | None = None  # "simple" | "deep" — set on assistant turns (v0 P1)
 
     def to_dict(self) -> Document:
-        return asdict(self)
+        data: Document = {"turn_id": self.turn_id, "role": self.role, "text": self.text}
+        if self.route is not None:
+            data["route"] = self.route
+        return data
 
     @classmethod
     def from_dict(cls, data: Document) -> Turn:
-        return cls(turn_id=data["turn_id"], role=data["role"], text=data.get("text", ""))
+        return cls(
+            turn_id=data["turn_id"],
+            role=data["role"],
+            text=data.get("text", ""),
+            route=data.get("route"),
+        )
 
 
 @dataclass

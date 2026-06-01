@@ -14,7 +14,14 @@ import pytest
 from src.contracts.documents import Session, Turn
 from src.engine import Engine
 from src.llm.client import Completion, Message, Usage
+from src.planner.perception import PERCEPTION_SYSTEM
 from src.state.json_store import JsonStore
+
+# Canned perception reply (intent chitchat -> simple route) for the stub LLM.
+_PERCEPTION_JSON = (
+    '{"topic": {"value": "t", "confidence": 0.9}, '
+    '"intent": {"value": "chitchat", "confidence": 0.9}}'
+)
 
 
 class StubLLM:
@@ -29,6 +36,9 @@ class StubLLM:
         self, *, system: str, messages: list[Message], tier: str = "opus", on_delta=None
     ) -> Completion:
         self.calls.append({"system": system, "messages": messages, "tier": tier})
+        # Perception calls classify; they must not consume the scripted assistant replies.
+        if system == PERCEPTION_SYSTEM:
+            return Completion(text=_PERCEPTION_JSON, tier=tier, usage=Usage(input_tokens=1))
         reply = self._replies[min(self._index, len(self._replies) - 1)]
         self._index += 1
         if on_delta is not None:

@@ -46,10 +46,16 @@ class VaniApp(App):
         for role, text in self._engine.transcript(self._session_id):
             self._append(role, text)
         self.query_one("#prompt", Input).focus()
+        self.call_after_refresh(self._scroll_to_end)
+
+    def _scroll_to_end(self) -> None:
+        """Keep the latest message in view."""
+        self.query_one("#transcript", VerticalScroll).scroll_end(animate=False)
 
     def _append(self, role: str, text: str) -> Static:
         line = Static(text, classes=f"msg {role}")
         self.query_one("#transcript", VerticalScroll).mount(line)
+        self.call_after_refresh(self._scroll_to_end)
         return line
 
     async def on_input_submitted(self, event: Input.Submitted) -> None:
@@ -67,10 +73,12 @@ class VaniApp(App):
             nonlocal buffer
             buffer += chunk
             reply_line.update(buffer)
+            self._scroll_to_end()
 
         try:
             reply = await self._engine.handle_turn(self._session_id, text, on_delta=on_delta)
             reply_line.update(reply)
+            self._scroll_to_end()
         finally:
             prompt.disabled = False
             prompt.focus()

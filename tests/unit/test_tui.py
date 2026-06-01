@@ -4,6 +4,8 @@ import ast
 import asyncio
 from pathlib import Path
 
+from textual.containers import VerticalScroll
+
 from src.tui.app import VaniApp
 
 TUI_SRC = Path(__file__).parents[2] / "src" / "tui" / "app.py"
@@ -61,3 +63,26 @@ def test_submitting_input_drives_the_engine():
     assert calls == ["hi vani"]
     # 2 initial + user + assistant
     assert msg_count == 4
+
+
+class TallEngine:
+    """A transcript long enough to overflow a small window."""
+
+    def transcript(self, session_id: str) -> list[tuple[str, str]]:
+        return [("user" if i % 2 == 0 else "assistant", f"line {i}") for i in range(30)]
+
+    async def handle_turn(self, session_id, user_input, *, on_delta=None) -> str:
+        return "ok"
+
+
+def test_auto_scrolls_to_bottom():
+    async def run() -> tuple[int, int]:
+        app = VaniApp(TallEngine(), session_id="s1")
+        async with app.run_test(size=(40, 8)) as pilot:
+            await pilot.pause()
+            box = app.query_one("#transcript", VerticalScroll)
+            return box.scroll_offset.y, box.max_scroll_y
+
+    y, max_y = asyncio.run(run())
+    assert max_y > 0  # content overflows the window
+    assert y == max_y  # the latest message is in view (scrolled to bottom)

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "voice-companion"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Vani — a living-personality voice companion (Version 0, local text build)"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,6 +28,9 @@ vani = "src.app.tui_main:main"
 
 [tool.setuptools.packages.find]
 include = ["src*"]
+
+[tool.setuptools.dynamic]
+version = { attr = "src.__version__" }
 
 [tool.ruff]
 line-length = 100

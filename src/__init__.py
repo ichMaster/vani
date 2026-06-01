@@ -1,3 +1,5 @@
 """Vani — a living-personality voice companion."""
 
-__version__ = "0.0.1"
+from src.version import get_version
+
+__version__ = get_version()

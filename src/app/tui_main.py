@@ -12,6 +12,7 @@ def main() -> None:
     """Build the brain and launch the Vani text UI."""
     from src.config.config import Config
     from src.contracts.documents import migrate
+    from src.core.canon import compile_identity_prompt, load_canon
     from src.engine import Engine
     from src.llm.client import AnthropicClient
     from src.state.json_store import JsonStore
@@ -20,7 +21,8 @@ def main() -> None:
     config = Config.load()
     repository = JsonStore(config.state_dir, migrator=migrate)
     llm = AnthropicClient(config)
-    engine = Engine(repository, llm)
+    identity = compile_identity_prompt(load_canon(repository))
+    engine = Engine(repository, llm, system_prompt=identity)
     run_tui(engine)
 
 

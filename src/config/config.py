@@ -25,6 +25,12 @@ class Config:
     opus_model: str = "claude-opus-4-8"
     haiku_model: str = "claude-haiku-4-5-20251001"
 
+    # Routing knobs (VANI-013): which intents stay on the fast tier, and the
+    # thresholds that escalate to the deep tier (ambiguity / emotional weight).
+    simple_intents: tuple[str, ...] = ("chitchat", "question", "command")
+    route_confidence_floor: float = 0.4
+    route_arousal_ceiling: float = 0.66
+
     @classmethod
     def load(cls, *, env_file: str | Path | None = None, **overrides: object) -> Config:
         """Build a Config from env vars and a `.env` file, applying explicit overrides.

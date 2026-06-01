@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import Protocol, runtime_checkable
 
 from src.config.config import Config
+from src.llm.prompt import build_system
 
 # Anthropic-native chat message: {"role": "user"|"assistant", "content": "..."}.
 Message = dict[str, str]
@@ -83,7 +84,7 @@ class AnthropicClient:
         async with client.messages.stream(
             model=self._model_for(tier),
             max_tokens=self._max_tokens,
-            system=system,
+            system=build_system(system),  # cached prefix; messages are the fresh suffix
             messages=messages,
         ) as stream:
             async for delta in stream.text_stream:

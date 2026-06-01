@@ -52,12 +52,12 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Tasks:**
   - Scaffold the Python project: a `.venv` virtualenv and `pyproject.toml` for dependencies, with `ruff` (lint/format) and `pytest` (tests) configured.
   - Define the `Repository` interface and a first `json_store` implementation (load/save by document type).
-  - Define the `contracts/` module and add a `schema_version` field to every persisted document, with migrate-on-read in the repository; export the document schemas to `architecture/schemas` as JSON Schema.
+  - Define the `contracts/` module and add a `schema_version` field to every persisted document, with migrate-on-read in the repository; export each document and contract to `architecture/schemas/` as JSON Schema (one file each, realized in the phase that builds it).
   - Expose the brain through a single transport-agnostic `engine.handle_turn(session_id, input)`; make the TUI a thin adapter over it and keep session state in the repository, so the v3 P2 server/API is a later adapter rather than a rewrite.
   - Stand up the `pytest` harness, including a headless replay path that drives turns through the repository with a mocked `llm`.
   - Implement the `llm` client over the Anthropic SDK (Opus), with streaming.
   - Build the TUI loop (input field, scrollable transcript, status line).
-  - Persist and reload transcript history via the repository.
+  - Persist and reload transcript history via the repository (schema: `architecture/schemas/sessions.schema.json`).
   - Add a minimal guardrail pass on output (placeholder for the Guardian).
   - Author a minimal placeholder canon so the assistant has an identity.
   - Scaffold confidence fields on state elements.
@@ -66,19 +66,20 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 
 ### Phase 1 — Planner Skeleton and Tiers (score 8)
 - **Goal:** a structured turn pipeline.
-- **Scope:** perception (a Haiku classification), deterministic routing (simple -> Haiku, complex -> Opus), dispatch, a minimal turn plan.
-- **Modules:** planner; telemetry (start).
+- **Scope:** perception (a Haiku classification), deterministic routing (simple -> Haiku, complex -> Opus), dispatch, a minimal turn plan; a TUI token/cost meter.
+- **Modules:** planner; telemetry (start); tui (token meter).
 - **State:** turn plan, telemetry.
 - **Dependencies:** v1 P0.
 - **Tasks:**
-  - Define the `PerceptionResult` and `TurnPlan` contracts in `contracts/`.
+  - Define the `PerceptionResult` and `TurnPlan` contracts in `contracts/` (schemas: `architecture/schemas/perception_result.schema.json`, `architecture/schemas/turn_plan.schema.json`).
   - Implement the perception call on Haiku returning structured JSON (topic, intent; emotion/modality added later).
   - Implement the deterministic router (simple vs. deep) with thresholds.
   - Implement dispatch for both routes and a post-update hook.
   - Handle LLM failure in dispatch: a "give me a moment" filler with retry/backoff on timeout, and an honest message on connectivity loss (the local-LLM offline fallback is wired in a later robustness pass).
-  - Emit per-turn telemetry (route taken, latencies, token usage).
+  - Emit per-turn telemetry (route taken, latencies, token usage) (schema: `architecture/schemas/telemetry.schema.json`).
+  - Add a token/cost calculator to the TUI status line: per-turn and cumulative token counts (Haiku vs. Opus, cache reads) and an estimated cost, derived from the telemetry.
   - Add prompt-prefix assembly in `llm` (system block placeholder).
-- **Definition of done:** classification and routing are observable; two LLM calls on a deep turn.
+- **Definition of done:** classification and routing are observable; two LLM calls on a deep turn; the TUI status line shows per-turn and cumulative token usage and cost.
 
 ### Phase 2 — Conversation Line (score 10)
 - **Goal:** a led conversation rather than a reaction.
@@ -87,7 +88,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **State:** conversation_line.
 - **Dependencies:** v1 P1. Delivery is a plain-text stub for now; full mirroring at v2 P5.
 - **Tasks:**
-  - Define the open-loop record and its lifecycle (open/deferred/closed) with significance weight and intent owner.
+  - Define the open-loop record and its lifecycle (open/deferred/closed) with significance weight and intent owner (schema: `architecture/schemas/conversation_line.schema.json`).
   - Implement arc-goal stack and arc-phase tracking (opening -> ... -> closing).
   - Implement the follow-up queue, including cross-session surfacing.
   - Implement the initiative budget (decrement on lead, refill on user-led turns).
@@ -102,8 +103,8 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **State:** portrait, material; confidence on state elements.
 - **Dependencies:** v1 P1, v1 P2, and the minimal canon (v1 P0). Facet lenses are realized in the interpretation prompt for now; runtime weighted facets replace them at v2 P4.
 - **Tasks:**
-  - Implement the observational layer (the material box appended each turn).
-  - Define the interpretive layer (hypotheses about the user's facets with confidence).
+  - Implement the observational layer (the material box appended each turn) (schema: `architecture/schemas/material.schema.json`).
+  - Define the interpretive layer (hypotheses about the user's facets with confidence) (schema: `architecture/schemas/portrait.schema.json`).
   - Add confidence to every relevant state element; implement rise and time-decay.
   - Wire confidence into planner decisions (ask again / cautious strategy / mirror less).
   - Extend perception with the utterance-modality field (joke/serious/hypothetical/sarcasm/quotation, with confidence).
@@ -118,9 +119,9 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **Dependencies:** v1 P3.
 - **Tasks:**
   - Implement the asyncio background task and the material queue.
-  - Implement policy validation (facets/strategy/classification/missed loops) with shadow and active modes.
+  - Implement policy validation (facets/strategy/classification/missed loops) with shadow and active modes (schema: `architecture/schemas/validation_log.schema.json`).
   - Implement portrait growth from accumulated material.
-  - Implement question generation into the bank (hypothesis link, sensitivity, appropriateness condition, aging).
+  - Implement question generation into the bank (hypothesis link, sensitivity, appropriateness condition, aging) (schema: `architecture/schemas/question_bank.schema.json`).
   - Implement curiosity as a loop class; add question selection at curiosity moments (relevance + sensitivity + budget).
   - Apply background conclusions to state softly, with inertia; keep the Guardian synchronous and outside.
   - Add selective triggering (uncertainty threshold, sampling, pauses).
@@ -137,7 +138,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **State:** canon.
 - **Dependencies:** v1 P1.
 - **Tasks:**
-  - Define the canon schema (all Layer 1 dimensions).
+  - Define the canon schema (all Layer 1 dimensions) (schema: `architecture/schemas/canon.schema.json`).
   - Author the full character bible (replacing the v1 P0 placeholder).
   - Compile the canon into a cached system-prompt prefix; wire prompt caching in `llm`.
   - Encode the hard invariants as a non-overridable prompt section.
@@ -166,7 +167,7 @@ Each phase is described by: goal; scope (what is added); modules; state; depende
 - **State:** users (birth date, synastry), updated canon.
 - **Dependencies:** v2 P2.
 - **Tasks:**
-  - Add a TUI onboarding flow collecting the user's birth data, purpose, and assistant gender/name/age.
+  - Add a TUI onboarding flow collecting the user's birth data, purpose, and assistant gender/name/age (schema: `architecture/schemas/users.schema.json`).
   - Map purpose to a target archetype and a desired chart signature.
   - Implement synastry computation (assistant chart x user chart).
   - Implement the scoring function (synastry-to-user + archetype fit), purpose-shaped.
@@ -286,7 +287,7 @@ Recommended order: quick wins first (1 data protection, 2 fact self-check), then
 
 ## 4. Cross-Cutting Elements
 
-Not separate phases; they accompany all: confidence and the Guardian are designed into the state scaffolding from early phases (a minimal safety check from v1 P0, the full Guardian from v2 P4); telemetry from v1 P1; the state repository from v1 P0 (so v3 P2 changes only the implementation); the transport-agnostic `engine` boundary, the shared data contracts, and the versioned document schemas are established at v1 P0 so the v3 P2 API is a thin adapter; sensitive-data encryption at the repository layer from v1 P0 (refinement #1).
+Not separate phases; they accompany all: confidence and the Guardian are designed into the state scaffolding from early phases (a minimal safety check from v1 P0, the full Guardian from v2 P4); telemetry from v1 P1; the state repository from v1 P0 (so v3 P2 changes only the implementation); the transport-agnostic `engine` boundary, the shared data contracts, and the versioned document schemas are established at v1 P0 so the v3 P2 API is a thin adapter; sensitive-data encryption at the repository layer from v1 P0 (refinement #1). Automated tests accompany every phase: each ships `pytest` unit tests for its new modules and extends the headless replay harness (stood up at v1 P0), and passing tests are an implicit definition-of-done for all phases.
 
 ---
 

@@ -12,6 +12,7 @@ license = { text = "MIT" }
 dependencies = [
     "anthropic>=0.40",
     "textual>=0.80",
+    "python-dotenv>=1.0",
 ]
 
 [project.optional-dependencies]

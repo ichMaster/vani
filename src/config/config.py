@@ -35,6 +35,13 @@ class Config:
     llm_max_retries: int = 2
     llm_retry_base_delay: float = 0.5
 
+    # Token prices (VANI-018), USD per million tokens — placeholders, tune as needed.
+    price_haiku_input: float = 0.80
+    price_haiku_output: float = 4.00
+    price_opus_input: float = 15.00
+    price_opus_output: float = 75.00
+    price_cache_read: float = 0.08
+
     @classmethod
     def load(cls, *, env_file: str | Path | None = None, **overrides: object) -> Config:
         """Build a Config from env vars and a `.env` file, applying explicit overrides.

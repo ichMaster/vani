@@ -23,7 +23,10 @@ from src.llm.client import LLMClient, Usage
 from src.planner.perception import PERCEPTION_SYSTEM, parse_perception
 from src.planner.router import make_plan
 from src.state.repository import Repository
+from src.telemetry.cost import estimate_cost
 from src.telemetry.logging import TelemetrySink
+
+_USAGE_KEYS = ("haiku_input", "haiku_output", "opus_input", "opus_output", "cache_read")
 
 # Minimal placeholder identity; replaced by the compiled canon at VANI-008 / v1 P1.
 DEFAULT_SYSTEM = "You are Vani, a warm and concise companion. Reply briefly and kindly."
@@ -72,6 +75,29 @@ class Engine:
     def transcript(self, session_id: str) -> list[tuple[str, str]]:
         """Return the (role, text) history for a session, for an adapter to render."""
         return [(t.role, t.text) for t in self._load_session(session_id).turns]
+
+    def usage_summary(self) -> dict:
+        """Token/cost summary from telemetry — the last turn and the running totals.
+
+        For an adapter (the TUI token meter) to render; sourced from recorded
+        telemetry, never from a fresh llm call.
+        """
+        events = self._telemetry.events() if self._telemetry is not None else []
+        total = dict.fromkeys(_USAGE_KEYS, 0)
+        for event in events:
+            tu = event.get("token_usage", {})
+            for key in _USAGE_KEYS:
+                total[key] += tu.get(key, 0)
+        last = events[-1].get("token_usage", {}) if events else {}
+        return {
+            "turn_tokens": sum(last.get(k, 0) for k in _USAGE_KEYS),
+            "turn_cost": estimate_cost(last, self._config),
+            "total_tokens": sum(total.values()),
+            "total_cost": estimate_cost(total, self._config),
+            "haiku_tokens": total["haiku_input"] + total["haiku_output"],
+            "opus_tokens": total["opus_input"] + total["opus_output"],
+            "cache_read_tokens": total["cache_read"],
+        }
 
     async def handle_turn(
         self,

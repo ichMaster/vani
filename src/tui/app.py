@@ -21,6 +21,21 @@ class TurnHandler(Protocol):
     async def handle_turn(self, session_id: str, user_input: str, *, on_delta=None) -> str: ...
 
 
+def _short(count: int) -> str:
+    """Compact token count, e.g. 1200 -> '1.2k'."""
+    return f"{count / 1000:.1f}k" if count >= 1000 else str(count)
+
+
+def format_meter(summary: dict) -> str:
+    """Render the token/cost status line from an engine usage summary."""
+    return (
+        f"turn {_short(summary['turn_tokens'])} tok ${summary['turn_cost']:.4f}  ·  "
+        f"session {_short(summary['total_tokens'])} tok ${summary['total_cost']:.4f}  ·  "
+        f"H {_short(summary['haiku_tokens'])} / O {_short(summary['opus_tokens'])} / "
+        f"cache {_short(summary['cache_read_tokens'])}"
+    )
+
+
 class VaniApp(App):
     """A minimal chat TUI: scrollable transcript, input field, status line."""
 
@@ -79,9 +94,17 @@ class VaniApp(App):
             reply = await self._engine.handle_turn(self._session_id, text, on_delta=on_delta)
             reply_line.update(reply)
             self._scroll_to_end()
+            self._refresh_meter()
         finally:
             prompt.disabled = False
             prompt.focus()
+
+    def _refresh_meter(self) -> None:
+        """Update the status line with the token/cost meter, if the engine reports usage."""
+        usage_summary = getattr(self._engine, "usage_summary", None)
+        if usage_summary is None:
+            return
+        self.query_one("#status", Static).update(format_meter(usage_summary()))
 
 
 def run_tui(engine: TurnHandler, *, session_id: str = "local") -> None:
